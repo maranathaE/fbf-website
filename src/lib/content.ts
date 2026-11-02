@@ -10,7 +10,7 @@ function cached<T>(key: string, load: () => Promise<T>): Promise<T> {
   return memo.get(key) as Promise<T>;
 }
 
-const nonEmpty = <T>(list: T[] | null | undefined): list is T[] => Array.isArray(list) && list.length > 0;
+const nonEmpty = <T = any>(list: T[] | null | undefined): list is T[] => Array.isArray(list) && list.length > 0;
 
 // ---------- projects ----------
 

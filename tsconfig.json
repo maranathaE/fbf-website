@@ -4,8 +4,6 @@
   "exclude": ["dist", "explorations", "content/raw", ".vercel"],
   "compilerOptions": {
     "jsx": "react-jsx",
-    "jsxImportSource": "react",
-    "baseUrl": ".",
-    "paths": { "@/*": ["src/*"] }
+    "jsxImportSource": "react"
   }
 }

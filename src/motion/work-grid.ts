@@ -2,12 +2,8 @@
 // Hover (or keyboard focus) plays the project's muted loop when it has one; otherwise it flips
 // through the project's own stills at 12 fps on a canvas, with a frame counter.
 // Filters reflow the grid with GSAP Flip, stepped so the move reads as drawings, not a tween.
-import { gsap } from 'gsap';
-import { Flip } from 'gsap/Flip';
 import { FPS } from './flipbook';
 import { each, finePointer, pad, reducedMotion } from './lifecycle';
-
-gsap.registerPlugin(Flip);
 
 function hoverPlay(card: HTMLAnchorElement) {
   const video = card.querySelector<HTMLVideoElement>('[data-loop]');
@@ -62,12 +58,14 @@ function hoverPlay(card: HTMLAnchorElement) {
   card.addEventListener('blur', stop);
 }
 
-function filters(root: HTMLElement) {
-  const list = root.querySelector<HTMLElement>('[data-grid]')!;
-  const items = [...list.querySelectorAll<HTMLElement>('[data-services]')];
+async function filters(root: HTMLElement) {
   const buttons = [...root.querySelectorAll<HTMLButtonElement>('[data-filter]')];
-  const status = root.querySelector<HTMLElement>('[data-filter-status]');
   if (!buttons.length) return;
+  const items = [...root.querySelectorAll<HTMLElement>('[data-services]')];
+  const status = root.querySelector<HTMLElement>('[data-filter-status]');
+  // GSAP Flip is only fetched on pages that actually have filters.
+  const [{ gsap }, { Flip }] = await Promise.all([import('gsap'), import('gsap/Flip')]);
+  gsap.registerPlugin(Flip);
 
   const apply = (value: string, animate: boolean) => {
     const state = Flip.getState(items);

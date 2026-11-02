@@ -32,6 +32,8 @@ export default defineConfig({
   adapter: vercel({ imageService: false }),
   trailingSlash: 'never',
   redirects: legacyRedirects,
+  // One less round trip before first paint: the whole stylesheet is ~9 KB compressed.
+  build: { inlineStylesheets: 'always' },
   prefetch: { prefetchAll: false, defaultStrategy: 'hover' },
   integrations: [
     ...(projectId

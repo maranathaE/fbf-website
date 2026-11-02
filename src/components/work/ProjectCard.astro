@@ -5,8 +5,10 @@ import Picture from '../Picture.astro';
 interface Props {
   project: Project;
   sizes?: string;
+  /** First row on a page where the grid is above the fold. */
+  priority?: boolean;
 }
-const { project: p, sizes = '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw' } = Astro.props;
+const { project: p, priority = false, sizes = '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw' } = Astro.props;
 const serviceLabel = { animation: 'Animation', production: 'Production', live: 'Live' };
 // Hover flips through the project's own frames at 12 fps when there is no video loop.
 const frames = p.gallery.slice(0, 12).map((g) => g.srcset.split(', ')[0].split(' ')[0]);
@@ -21,7 +23,7 @@ const frames = p.gallery.slice(0, 12).map((g) => g.srcset.split(', ')[0].split('
     data-frames={p.loop ? undefined : JSON.stringify(frames)}
   >
     <div class="media">
-      <Picture img={p.cover} sizes={sizes} class="cover" />
+      <Picture img={p.cover} sizes={sizes} class="cover" priority={priority} />
       {
         p.loop && (
           <video class="loop" muted loop playsinline preload="none" aria-hidden="true" data-loop>

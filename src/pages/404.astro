@@ -1,0 +1,41 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Missing frame" noindex>
+  <section class="wrap py-24 md:py-32">
+    <p class="eyebrow">Error 404</p>
+    <h1 class="mt-4 max-w-[14ch] text-display">This frame never got drawn.</h1>
+    <p class="mt-6 max-w-[48ch] text-lede text-ink-soft">
+      The page you're after isn't here. If you followed a link from our old site, the work has moved, but it's all still here.
+    </p>
+    <div class="mt-8 flex flex-wrap gap-3">
+      <a href="/work" class="btn btn-primary">See the work</a>
+      <a href="/" class="btn btn-ghost">Home</a>
+    </div>
+    <div class="missing" aria-hidden="true">
+      {Array.from({ length: 12 }, (_, i) => <span class:list={[i === 6 && 'gap']}>{String(i + 1).padStart(3, '0')}</span>)}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .missing {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 3px;
+    margin-top: 4rem;
+    font: 600 0.625rem/1 var(--font-mono);
+    color: var(--ink-soft);
+  }
+  .missing span {
+    padding: 2.5rem 0 0.4rem 0.3rem;
+    background: var(--paper-shade);
+    border-radius: 2px;
+  }
+  .missing .gap {
+    background: transparent;
+    box-shadow: inset 0 0 0 1.5px var(--magenta);
+    color: var(--magenta-ink);
+  }
+</style>

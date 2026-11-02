@@ -1,6 +1,6 @@
 @import "tailwindcss";
-@import "@fontsource-variable/fraunces/soft.css";
-@import "@fontsource-variable/fraunces/soft-italic.css";
+@import "@fontsource-variable/fraunces/wght.css";
+@import "@fontsource-variable/fraunces/wght-italic.css";
 @import "@fontsource-variable/instrument-sans/wght.css";
 @import "@fontsource-variable/jetbrains-mono/wght.css";
 @import "./motion.css";
@@ -117,7 +117,6 @@
   h1, h2, h3 {
     font-family: var(--font-display);
     font-weight: 400;
-    font-variation-settings: "SOFT" 100;
     letter-spacing: -0.025em;
     text-wrap: balance;
   }

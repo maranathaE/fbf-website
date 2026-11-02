@@ -68,10 +68,14 @@ const title = escape(heroTitle).replace(/\*(.+?)\*/g, '<em>$1</em>');
   }
   h1 {
     margin: 1.1rem 0 1.25rem;
-    font-variation-settings: 'SOFT' 100;
   }
+  /* upright, so the first screen never waits on the italic font */
   h1 :global(em) {
+    font-style: normal;
     color: var(--teal-ink);
+    text-decoration: underline wavy var(--teal) 0.06em;
+    text-underline-offset: 0.12em;
+    text-decoration-skip-ink: none;
   }
   .lede {
     font-size: var(--text-lede);
@@ -167,7 +171,7 @@ const title = escape(heroTitle).replace(/\*(.+?)\*/g, '<em>$1</em>');
     position: absolute;
     right: -0.4rem;
     top: -1.6rem;
-    font-size: 0.95rem;
+    font: 500 0.75rem/1 var(--font-mono);
     transform: rotate(-3deg);
   }
   @media (max-width: 860px) {

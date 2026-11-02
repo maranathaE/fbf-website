@@ -1,0 +1,162 @@
+---
+import Base from '../layouts/Base.astro';
+const colors = [
+  { value: '#1d1b18', label: 'Graphite' },
+  { value: '#3d63dd', label: 'Blue pencil' },
+  { value: '#50bdae', label: 'Teal' },
+  { value: '#f50979', label: 'Magenta' },
+];
+---
+
+<Base title="Playground" description="Draw eight frames, flip them, and take home a GIF.">
+  <section class="wrap pb-10 pt-14 md:pt-20">
+    <p class="eyebrow">Playground</p>
+    <h1 class="mt-4 max-w-[16ch] text-display">Draw a frame. Then draw the next one.</h1>
+    <p class="mt-6 max-w-[54ch] text-lede text-ink-soft">
+      Eight sheets, a pencil and onion skins: the same tools we start every animation with. Press play to flip them, then
+      download your flipbook as a GIF.
+    </p>
+  </section>
+
+  <section class="wrap" aria-label="Flipbook drawing tool" data-toy>
+    <div class="grid gap-6 lg:grid-cols-[1fr_16rem]">
+      <div class="sheet p-2.5 md:p-3">
+        <div class="relative">
+          <canvas class="toy-canvas" data-toy-canvas aria-label="Drawing sheet. Draw with a mouse, pen or finger." role="img"></canvas>
+          <span class="counter" aria-hidden="true" data-toy-counter>FRAME 01 / 08</span>
+        </div>
+        <ol class="strip" aria-label="Frames" data-toy-strip></ol>
+      </div>
+
+      <div class="tools">
+        <fieldset>
+          <legend>Pencil</legend>
+          <div class="flex flex-wrap gap-2">
+            {colors.map((c, i) => (
+              <button type="button" class="swatch" style={`--c:${c.value}`} data-toy-color={c.value} aria-pressed={i === 0 ? 'true' : 'false'}>
+                <span class="sr-only">{c.label}</span>
+              </button>
+            ))}
+            <button type="button" class="tool" data-toy-eraser aria-pressed="false">Eraser</button>
+          </div>
+          <label class="mt-3 block text-sm font-semibold">
+            Line weight
+            <input type="range" min="1" max="14" value="4" class="mt-1 w-full accent-[var(--magenta-ink)]" data-toy-size />
+          </label>
+        </fieldset>
+        <fieldset>
+          <legend>Frames</legend>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" class="tool" data-toy-prev>← Prev</button>
+            <button type="button" class="tool" data-toy-next>Next →</button>
+            <button type="button" class="tool" data-toy-copy>Copy previous</button>
+            <button type="button" class="tool" data-toy-clear>Clear frame</button>
+            <button type="button" class="tool col-span-2" data-toy-onion aria-pressed="true">Onion skin</button>
+          </div>
+        </fieldset>
+        <div class="grid gap-2">
+          <button type="button" class="btn btn-ghost" data-toy-play aria-pressed="false">Play</button>
+          <button type="button" class="btn btn-primary" data-toy-export>Download GIF</button>
+        </div>
+        <p class="font-mono text-xs text-ink-soft">Keys: <kbd>,</kbd> previous · <kbd>.</kbd> next</p>
+        <p class="sr-only" aria-live="polite" data-toy-status></p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .toy-canvas {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border-radius: 3px;
+    touch-action: none;
+    cursor: crosshair;
+    background: #fbf8f1;
+  }
+  .counter {
+    position: absolute;
+    right: 0.6rem;
+    top: 0.6rem;
+    padding: 0.25rem 0.45rem;
+    border-radius: 3px;
+    background: var(--ink);
+    color: var(--paper);
+    font: 600 0.6875rem/1 var(--font-mono);
+  }
+  .strip {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 0.35rem;
+    margin-top: 0.6rem;
+  }
+  .strip :global(button) {
+    display: block;
+    width: 100%;
+    border-radius: 3px;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px var(--rule);
+  }
+  .strip :global(button[aria-current='true']) {
+    box-shadow: 0 0 0 2.5px var(--magenta);
+  }
+  .strip :global(canvas) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .tools {
+    display: grid;
+    gap: 1.5rem;
+    align-content: start;
+  }
+  fieldset {
+    border: 0;
+    padding: 0;
+    margin: 0;
+  }
+  legend {
+    font: 600 0.75rem/1 var(--font-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 0.75rem;
+  }
+  .swatch {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    background: var(--c);
+    box-shadow: inset 0 0 0 3px var(--sheet);
+  }
+  .swatch[aria-pressed='true'] {
+    box-shadow: inset 0 0 0 3px var(--sheet), 0 0 0 2.5px var(--ink);
+  }
+  .tool {
+    min-height: 2.75rem;
+    padding: 0 0.85rem;
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1.5px var(--rule);
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+  .tool:hover {
+    box-shadow: inset 0 0 0 1.5px var(--ink);
+  }
+  .tool[aria-pressed='true'] {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  kbd {
+    font: inherit;
+    padding: 0 4px;
+    border: 1px solid currentColor;
+    border-radius: 3px;
+  }
+</style>
+
+<script>
+  import { initGifToy } from '../motion/gif-toy';
+  document.querySelectorAll<HTMLElement>('[data-toy]').forEach(initGifToy);
+</script>

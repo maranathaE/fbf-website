@@ -14,8 +14,9 @@ const { workIntro } = await getSettings();
     <h1 class="mt-4 max-w-[14ch] text-display">Every frame, made with love.</h1>
     <p class="mt-6 max-w-[52ch] text-lede text-ink-soft">{workIntro}</p>
   </section>
-  <section class="wrap" aria-label="Projects">
-    <WorkGrid projects={projects} filters />
+  <section class="wrap" aria-labelledby="projects-title">
+    <h2 id="projects-title" class="sr-only">All projects</h2>
+    <WorkGrid projects={projects} filters eager />
   </section>
   <CtaBand />
 </Base>
