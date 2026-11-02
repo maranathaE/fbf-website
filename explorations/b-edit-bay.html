@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FBF · Direction B · Edit Bay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+Ethiopic:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bay: #0F0F11; --bay-raised: #1A1A1E; --leader: #EDE6D6; --leader-dim: #A39D90;
+    --teal: #50BDAE; --magenta: #F50979; --meskel: #F6B800; --tally: #FF3B30;
+    --sans: "Archivo", system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, monospace;
+    --strip-w: clamp(118px, 11vw, 168px);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bay); color: var(--leader); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
+
+  .bar { position: fixed; inset: 0 0 auto; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px clamp(16px, 3vw, 40px); padding-right: calc(var(--strip-w) + clamp(16px, 3vw, 40px)); }
+  .logo { display: flex; align-items: flex-end; gap: 8px; text-decoration: none; }
+  .logo-mark { position: relative; width: 24px; height: 30px; }
+  .logo-mark i { position: absolute; left: 1px; bottom: 5px; width: 22px; height: 22px; border-radius: 50%; background: var(--teal); }
+  .logo-mark b { position: absolute; left: 0; bottom: 0; width: 24px; height: 3px; background: var(--magenta); }
+  .logo-word { font: 800 12.5px/.92 var(--sans); letter-spacing: -.01em; }
+  nav { display: flex; gap: clamp(12px, 2vw, 26px); font: 500 14px var(--sans); }
+  nav a { text-decoration: none; opacity: .8; } nav a:hover { opacity: 1; color: var(--teal); }
+  .live { display: inline-flex; align-items: center; gap: 7px; font: 600 11px/1 var(--mono); letter-spacing: .08em; padding: 7px 10px; border-radius: 999px; background: rgba(255,255,255,.06); }
+  .live::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--leader-dim); }
+  @media (max-width: 860px) { nav { display: none; } .bar { padding-right: clamp(16px, 3vw, 40px); } }
+
+  .hero { height: 340vh; position: relative; }
+  .stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
+
+  /* the projected frame */
+  .screen { position: absolute; inset: 0; right: var(--strip-w); background: #000; }
+  .screen img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .screen::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(15,15,17,.92) 0%, rgba(15,15,17,.7) 38%, rgba(15,15,17,.05) 70%), linear-gradient(0deg, rgba(15,15,17,.85) 0%, transparent 35%); }
+  .flash { position: absolute; inset: 0; right: var(--strip-w); background: var(--leader); opacity: 0; pointer-events: none; mix-blend-mode: screen; z-index: 2; }
+  .flash.on { animation: flicker 125ms steps(1) 1; }
+  @keyframes flicker { 0% { opacity: .38; } 33% { opacity: 0; } 66% { opacity: .14; } 100% { opacity: 0; } }
+
+  /* viewfinder HUD */
+  .hud { position: absolute; inset: 72px calc(var(--strip-w) + 20px) 20px 20px; pointer-events: none; z-index: 3; font: 400 11px/1 var(--mono); letter-spacing: .08em; color: var(--leader-dim); }
+  .hud .c { position: absolute; width: 22px; height: 22px; border: 0 solid rgba(237,230,214,.55); }
+  .c.tl { top: 0; left: 0; border-top-width: 1.5px; border-left-width: 1.5px; } .c.tr { top: 0; right: 0; border-top-width: 1.5px; border-right-width: 1.5px; }
+  .c.bl { bottom: 0; left: 0; border-bottom-width: 1.5px; border-left-width: 1.5px; } .c.br { bottom: 0; right: 0; border-bottom-width: 1.5px; border-right-width: 1.5px; }
+  .tc { position: absolute; top: 8px; right: 32px; color: var(--leader); }
+  .rec { position: absolute; top: 8px; left: 32px; display: flex; gap: 8px; align-items: center; }
+  .rec::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--magenta); animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .fc { position: absolute; bottom: 8px; right: 32px; color: var(--leader); font-weight: 600; } .fc b { color: var(--teal); }
+
+  /* copy */
+  .copy { position: absolute; z-index: 4; left: clamp(20px, 5vw, 72px); top: 50%; transform: translateY(-56%); max-width: min(620px, 52vw); }
+  .eyebrow { font: 600 11px/1 var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--teal); margin: 0; }
+  h1 { font: 800 clamp(44px, 6.6vw, 104px)/.9 var(--sans); font-variation-settings: "wdth" 112; letter-spacing: -.02em; margin: 16px 0 18px; text-transform: uppercase; transition: font-variation-settings .25s steps(4); }
+  h1 span { display: block; font-variation-settings: "wdth" 62; color: var(--magenta); }
+  .lede { font: 400 clamp(16px, 1.3vw, 19px)/1.5 var(--sans); color: rgba(237,230,214,.82); max-width: 40ch; margin: 0 0 26px; }
+  .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; gap: 9px; padding: 12px 18px; font: 700 14px/1 var(--sans); letter-spacing: .04em; text-transform: uppercase; text-decoration: none; background: var(--teal); color: var(--bay); border-radius: 2px; }
+  .btn.ghost { background: transparent; color: var(--leader); box-shadow: inset 0 0 0 1.5px rgba(237,230,214,.5); }
+
+  /* slate burn-in */
+  .slate { position: absolute; z-index: 4; left: clamp(20px, 5vw, 72px); bottom: 48px; right: calc(var(--strip-w) + 40px); display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+  .slate .meta { font: 400 12px/1.5 var(--mono); color: var(--leader-dim); letter-spacing: .06em; text-transform: uppercase; }
+  .slate .meta strong { display: block; font: 700 clamp(18px, 1.8vw, 24px)/1.15 var(--sans); font-variation-settings: "wdth" 100; color: var(--leader); letter-spacing: 0; text-transform: none; }
+  .slate a { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--teal); white-space: nowrap; }
+
+  /* the film strip */
+  .strip { position: absolute; top: 0; right: 0; bottom: 0; width: var(--strip-w); background: var(--bay-raised); overflow: hidden; touch-action: none; cursor: grab; z-index: 5; }
+  .strip:active { cursor: grabbing; }
+  .reel { position: absolute; left: 0; right: 0; top: 0; will-change: transform; }
+  .reel::before, .reel::after { content: ""; position: absolute; top: 0; bottom: 0; width: 18px; background: radial-gradient(circle at 50% 50%, transparent 0 0, var(--bay) 0) ; background: repeating-linear-gradient(180deg, transparent 0 6px, var(--bay) 6px 16px, transparent 16px 22px); }
+  .reel::before { left: 4px; } .reel::after { right: 4px; }
+  .cell { display: block; margin: 0 26px; padding: 5px 0; height: var(--cell-h); }
+  .cell button { all: unset; display: block; width: 100%; height: 100%; cursor: pointer; background: #000; }
+  .cell img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: .55; filter: saturate(.6); transition: opacity .2s steps(2); }
+  .cell[aria-current="true"] img { opacity: 1; filter: none; }
+  .gate { position: absolute; left: 20px; right: 20px; top: 50%; height: var(--cell-h); transform: translateY(-50%); border: 2px solid var(--meskel); pointer-events: none; z-index: 6; }
+  .gate::before { content: "GATE"; position: absolute; top: -16px; left: 0; font: 600 9px/1 var(--mono); letter-spacing: .14em; color: var(--meskel); }
+
+  .next { padding: 120px clamp(20px, 5vw, 72px) 160px; background: var(--leader); color: var(--bay); }
+  .next h2 { font: 800 clamp(32px, 4vw, 60px)/1 var(--sans); font-variation-settings: "wdth" 120; text-transform: uppercase; margin: 0 0 12px; }
+  .next p { max-width: 54ch; font-size: 18px; line-height: 1.55; margin: 0; }
+  .eth { font-family: "Noto Sans Ethiopic", var(--sans); }
+  .tag { position: fixed; left: 12px; bottom: 12px; z-index: 30; font: 600 11px/1 var(--mono); background: var(--leader); color: var(--bay); padding: 6px 9px; border-radius: 3px; }
+
+  @media (max-width: 860px) {
+    :root { --strip-w: 0px; }
+    .hero { height: 300vh; }
+    .screen, .flash { bottom: 112px; }
+    .screen::after { background: linear-gradient(0deg, rgba(15,15,17,.95) 0%, rgba(15,15,17,.55) 55%, rgba(15,15,17,.3) 100%); }
+    .copy { top: 84px; transform: none; max-width: none; right: 20px; }
+    .lede { font-size: 15px; margin-bottom: 18px; }
+    .hud { inset: 64px 12px 124px 12px; }
+    .rec { display: none; }
+    .copy { top: 104px; }
+    .tag { display: none; }
+    .slate { bottom: 134px; right: 20px; flex-direction: column; align-items: flex-start; gap: 8px; }
+    .strip { top: auto; left: 0; height: 112px; width: auto; touch-action: pan-y; }
+    .reel { top: 0; bottom: 0; left: 0; right: auto; display: flex; height: 100%; }
+    .reel::before, .reel::after { left: 0; right: 0; width: auto; height: 14px; top: 4px; bottom: auto; background: repeating-linear-gradient(90deg, transparent 0 6px, var(--bay) 6px 16px, transparent 16px 22px); }
+    .reel::after { top: auto; bottom: 4px; }
+    .cell { margin: 22px 0; padding: 0 4px; height: auto; width: var(--cell-w); flex: none; }
+    .gate { top: 18px; bottom: 18px; height: auto; left: 50%; right: auto; width: var(--cell-w); transform: translateX(-50%); }
+    .tag { left: auto; right: 12px; bottom: 120px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rec::before { animation: none; }
+    .flash.on { animation: none; }
+    h1 { transition: none; }
+  }
+</style>
+</head>
+<body>
+<header class="bar">
+  <a class="logo" href="#" aria-label="Frame by Frame Studio, home">
+    <span class="logo-mark" aria-hidden="true"><i></i><b></b></span>
+    <span class="logo-word">frame<br>by<br>frame</span>
+  </a>
+  <nav aria-label="Main"><a href="#">Work</a><a href="#">Services</a><a href="#">About</a><a href="#">Contact</a></nav>
+  <span class="live" title="Shows Live now when the studio is streaming">NEXT STREAM · TBA</span>
+</header>
+
+<main>
+  <section class="hero" id="hero">
+    <div class="stage">
+      <div class="screen"><img id="proj" alt=""></div>
+      <div class="flash" id="flash"></div>
+
+      <div class="hud" aria-hidden="true">
+        <span class="c tl"></span><span class="c tr"></span><span class="c bl"></span><span class="c br"></span>
+        <span class="rec">ADDIS ABABA · 9.03°N 38.74°E</span>
+        <span class="tc" id="tc">00:00:00:00</span>
+        <span class="fc" id="fc">FRAME <b>01</b> / 12</span>
+      </div>
+
+      <div class="copy">
+        <p class="eyebrow">Animation · Production · Live</p>
+        <h1 id="headline">Stories, cut <span>frame by frame.</span></h1>
+        <p class="lede">We're a creative studio in Addis Ababa. Clients like UN Women, WFP and IFRC come to us when an idea needs to move people. Worry not, we'll guide you from concept to final frame.</p>
+        <div class="actions">
+          <a class="btn" href="#">▶ Play reel</a>
+          <a class="btn ghost" href="#">Start a project</a>
+        </div>
+      </div>
+
+      <div class="slate" aria-live="polite">
+        <p class="meta" id="slate"></p>
+        <a id="open" href="#">Open case study →</a>
+      </div>
+
+      <div class="strip" id="strip" role="slider" tabindex="0" aria-label="Film strip of selected work. Use arrow keys to move frame by frame." aria-valuemin="1" aria-valuemax="12" aria-valuenow="1">
+        <div class="gate" aria-hidden="true"></div>
+        <div class="reel" id="reel"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="next">
+    <h2>Concept → Design → Execution</h2>
+    <p>From a single line in a brief to <span class="eth">አዲስ ሰው ነኝ</span> on screen, here's how we work. (The process scroll story would continue here.)</p>
+  </section>
+</main>
+<span class="tag">Direction B · Edit Bay · mock</span>
+
+<script>
+(() => {
+  const R = '../content/raw/2021/07/';
+  const reelData = [
+    ['marriage-laws-in-africa', 'Marriage Laws in Africa', 'UN Women', 'Animation', '01-23.jpg', 'Animated classroom scene: a teacher at a blackboard in front of students'],
+    ['smartface', 'Smart-face and Conveyer Belt', 'World Food Programme', 'Animation', '01-4.jpg', 'Illustrated top-down desk with a worker, laptop and paperwork'],
+    ['ifrc', 'Practice Guide for Migrant Health Workers', 'IFRC · Gebeya Media', 'Animation', '01-16.jpg', 'Migrant family walking across a desert beside the text 272 million people'],
+    ['balenjeraye', 'Balenjeraye Animation Series', 'The Neighbor-Love Movement', 'Animation', '01-21.jpg', 'Crimson illustrations of eyes, ears, mouth, hands, heart, feet and brain'],
+    ['tana-forum-2019', 'Tana Forum 2019 — Highlights', 'AAU IPSS', 'Production', '06-6.jpg', 'Tana Forum 2019 logo on a wall'],
+    ['kibir-bearyam-official-lyric-video', 'Kibir Be’Aryam — Lyric Video', 'Endalkachew Hawaz', 'Animation · 2.5D', '02-5.jpg', 'A nativity stable under a beam of light at night'],
+    ['addis-sew-negn', 'Addis Sew Negn', 'RedeeMedia', 'Animation · Type', '02-7.jpg', 'Wall of Ethiopic letters in perspective'],
+    ['now-is-the-time', 'Now Is The Time — Short Film', 'Beza International Ministries', 'Production', '02-12.jpg', 'Silhouette of a man against a low sun'],
+    ['5th-annual-private-equity-on-east-africa-highlights-video', 'Private Equity on East Africa', 'Flawless Events', 'Live · Production', '04-23.jpg', 'A speaker at a podium at the Sheraton conference'],
+    ['i-am-an-african', 'I Am An African', 'The Youth Mag', 'Animation', '03-13.jpg', 'Hexagon collage of Africa, a crowd, a portrait and Ethiopic script'],
+    ['tsilat', 'Tsilat — Opening Titles', 'Golden Oil Ministries', 'Animation · Titles', '03-4.jpg', 'Two stone tablets with a dove above the Ethiopic title Tsilat'],
+    ['redeemedia', 'Media Missions & Creativity', 'RedeeMedia', 'Animation', '03-6.jpg', 'Flat-design map pin over a winding road on red'],
+  ];
+  const N = reelData.length, FPS = 24;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = id => document.getElementById(id);
+  const strip = $('strip'), reel = $('reel'), proj = $('proj'), flash = $('flash'), hero = $('hero');
+  const mobile = () => matchMedia('(max-width: 860px)').matches;
+
+  reelData.forEach(([slug, title, , , img, alt], i) => {
+    const cell = document.createElement('div'); cell.className = 'cell';
+    cell.innerHTML = `<button tabindex="-1" aria-label="${title}"><img src="thumbs/${img.replace('.jpg', '.webp')}" alt="" decoding="async"></button>`;
+    const pre = new Image(); pre.src = R + img; pre.decode?.().catch(() => {}); // projector frames ready before they hit the gate
+    cell.querySelector('button').onclick = () => go(i, true);
+    reel.append(cell);
+  });
+  const cells = [...reel.children];
+
+  let cellSize = 0;
+  function layout() {
+    if (mobile()) { const w = Math.round(innerWidth * .34); document.documentElement.style.setProperty('--cell-w', w + 'px'); cellSize = w + 8; }
+    else { const w = strip.clientWidth - 52, h = Math.round(w * 9 / 16) + 10; document.documentElement.style.setProperty('--cell-h', h + 'px'); cellSize = h; }
+    place(pos, true);
+  }
+
+  // pos is fractional while the strip runs; content always lands on whole frames
+  let pos = 0, cur = -1;
+  function place(p, instant) {
+    const offset = mobile() ? strip.clientWidth / 2 - cellSize / 2 - p * cellSize : strip.clientHeight / 2 - cellSize / 2 - p * cellSize;
+    reel.style.transform = mobile() ? `translate3d(${offset}px,0,0)` : `translate3d(0,${offset}px,0)`;
+  }
+  function go(i, fromUser) {
+    i = Math.max(0, Math.min(N - 1, Math.round(i)));
+    if (i === cur) return; cur = i;
+    const [slug, title, client, tag, img, alt] = reelData[i];
+    proj.src = R + img; proj.alt = alt;
+    $('slate').innerHTML = `${String(i + 1).padStart(2, '0')} — ${tag}<strong>${title}</strong>${client}`;
+    $('open').href = `https://fbf.studio/work/${slug}/`;
+    $('fc').innerHTML = `FRAME <b>${String(i + 1).padStart(2, '0')}</b> / ${N}`;
+    strip.setAttribute('aria-valuenow', i + 1); strip.setAttribute('aria-valuetext', `${title}, ${client}`);
+    cells.forEach((c, k) => c.setAttribute('aria-current', k === i));
+    if (!reduce) { flash.classList.remove('on'); void flash.offsetWidth; flash.classList.add('on'); }
+    if (fromUser) { pos = i; place(pos); syncScroll(i); }
+  }
+
+  // scroll → frame, snapping: the strip clicks from sprocket to sprocket
+  let ignoreScroll = false;
+  function onScroll() {
+    if (ignoreScroll) return;
+    const range = hero.offsetHeight - innerHeight, p = Math.max(0, Math.min(1, -hero.getBoundingClientRect().top / range));
+    const f = p * (N - 1);
+    pos = f; place(pos); go(f);
+  }
+  function syncScroll(i) {
+    const range = hero.offsetHeight - innerHeight;
+    ignoreScroll = true; scrollTo(0, hero.offsetTop + range * i / (N - 1)); requestAnimationFrame(() => ignoreScroll = false);
+  }
+  addEventListener('scroll', onScroll, { passive: true });
+
+  // drag / swipe the strip itself
+  let start = null, startPos = 0;
+  strip.addEventListener('pointerdown', e => { start = mobile() ? e.clientX : e.clientY; startPos = pos; strip.setPointerCapture(e.pointerId); });
+  strip.addEventListener('pointermove', e => { if (start == null) return; const d = ((mobile() ? e.clientX : e.clientY) - start) / cellSize; pos = Math.max(0, Math.min(N - 1, startPos - d)); place(pos); go(pos); });
+  strip.addEventListener('pointerup', () => { if (start == null) return; start = null; go(Math.round(pos), true); });
+  strip.addEventListener('keydown', e => {
+    const d = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key];
+    if (d) { e.preventDefault(); go(cur + d, true); }
+    if (e.key === 'Enter') location.href = $('open').href;
+  });
+
+  // timecode runs at 24 fps; the frame cell supplies the seconds
+  const tc = $('tc'), t0 = performance.now();
+  function tick(t) {
+    const total = Math.floor((t - t0) / 1000 * FPS) + cur * 2 * FPS, ff = total % FPS, s = Math.floor(total / FPS);
+    tc.textContent = `00:00:${String(s % 60).padStart(2, '0')}:${String(ff).padStart(2, '0')}`;
+    $('headline').style.fontVariationSettings = `"wdth" ${112 - (pos % 1) * 30}`;
+    if (!reduce) requestAnimationFrame(tick);
+  }
+
+  // intro: thread the film, a fast run through the whole reel landing on frame 1 (~1.2 s)
+  function intro() {
+    const dur = 1200, s = performance.now();
+    (function run(t) {
+      const u = Math.min(1, (t - s) / dur), e = 1 - Math.pow(1 - u, 3);
+      pos = (N - 1) * (1 - e); place(pos); go(Math.round(pos));
+      if (u < 1 && scrollY === 0) requestAnimationFrame(run); else onScroll();
+    })(s);
+  }
+
+  addEventListener('resize', layout);
+  layout();
+  if (reduce) { go(0); tick(t0); } else { go(N - 1); intro(); requestAnimationFrame(tick); }
+})();
+</script>
+</body>
+</html>

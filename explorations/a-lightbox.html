@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FBF · Direction A · Lightbox</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..800,0..100,0..1;1,9..144,300..800,0..100,0..1&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F2EDE3; --paper-shade: #E6DFD1; --graphite: #1D1B18; --graphite-soft: #5B554C;
+    --teal: #50BDAE; --magenta: #F50979; --onion: #CFEBC5; --col-blue: #3D63DD; --ochre: #E3A33B;
+    --sheet: #FBF8F1; --glow: rgba(255, 246, 226, 0);
+    --display: "Fraunces", Georgia, serif; --sans: "Instrument Sans", system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper: #16130F; --paper-shade: #221E18; --graphite: #F2EDE3; --graphite-soft: #A79F92; --sheet: #2A251E; --glow: rgba(255, 246, 226, .07); --col-blue: #7D98F0; }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: auto; }
+  body {
+    margin: 0; background: var(--paper); color: var(--graphite); font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; border-radius: 4px; }
+
+  /* header */
+  .bar { position: fixed; inset: 0 0 auto; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px clamp(16px, 4vw, 48px); }
+  .logo { display: flex; align-items: flex-end; gap: 8px; text-decoration: none; }
+  .logo-mark { position: relative; width: 26px; height: 34px; }
+  .logo-mark i { position: absolute; left: 1px; bottom: 5px; width: 24px; height: 24px; border-radius: 50%; background: var(--teal); animation: logo-bounce 1.6s steps(12) infinite; }
+  .logo-mark b { position: absolute; left: 0; bottom: 0; width: 26px; height: 3px; background: var(--magenta); }
+  .logo-word { font: 700 13px/0.92 var(--sans); letter-spacing: -.02em; }
+  @keyframes logo-bounce { 0%, 100% { transform: translateY(0) scale(1.25, .75); } 15% { transform: translateY(-4px) scale(.9, 1.1); } 50% { transform: translateY(-10px) scale(1); } 85% { transform: translateY(-4px) scale(.9, 1.1); } }
+  nav { display: flex; gap: clamp(12px, 2.4vw, 28px); font-size: 15px; }
+  nav a { text-decoration: none; }
+  nav a:hover { text-decoration: underline wavy var(--col-blue) 1.5px; text-underline-offset: 5px; }
+  .cta { display: inline-flex; align-items: center; gap: 8px; padding: 11px 18px; border-radius: 999px; background: var(--magenta); color: #fff; text-decoration: none; font-weight: 600; font-size: 15px; border: 0; cursor: pointer; }
+  .cta.ghost { background: transparent; color: var(--graphite); box-shadow: inset 0 0 0 1.5px currentColor; }
+  @media (max-width: 760px) { nav { display: none; } .bar .cta { padding: 9px 14px; font-size: 14px; } }
+
+  /* hero */
+  .hero { height: 260vh; position: relative; }
+  .stage { position: sticky; top: 0; height: 100vh; height: 100svh; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: center; gap: clamp(20px, 4vw, 64px); padding: 84px clamp(16px, 4vw, 48px) 32px; }
+  .eyebrow { font: 600 12px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--graphite-soft); display: flex; align-items: center; gap: 10px; }
+  .eyebrow::before { content: ""; width: 22px; height: 2px; background: var(--magenta); }
+  h1 { font: 400 clamp(40px, 6.2vw, 92px)/.96 var(--display); font-variation-settings: "opsz" 144, "SOFT" 100, "WONK" 1; letter-spacing: -.025em; margin: 18px 0 20px; }
+  h1 em { font-style: italic; color: var(--teal); }
+  .lede { font-size: clamp(16px, 1.35vw, 19px); line-height: 1.55; max-width: 34ch; color: var(--graphite-soft); margin: 0 0 28px; }
+  .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+  /* the sheet */
+  .desk { position: relative; }
+  .sheet { position: relative; background: var(--sheet); border-radius: 6px; box-shadow: 0 0 0 1px rgba(0,0,0,.06), 0 30px 60px -30px rgba(40,30,10,.35), 0 0 120px 30px var(--glow); padding: 34px 18px 14px; touch-action: pan-y; cursor: ew-resize; user-select: none; }
+  .pegs { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 46px; align-items: center; }
+  .pegs span { width: 26px; height: 9px; border-radius: 9px; background: var(--paper); box-shadow: inset 0 1px 2px rgba(0,0,0,.25); }
+  .pegs span:nth-child(2) { width: 13px; height: 13px; }
+  canvas { display: block; width: 100%; aspect-ratio: 16 / 10; }
+  .hud { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 10px; font: 400 12px/1 var(--mono); color: var(--graphite-soft); }
+  .counter { font-weight: 600; color: var(--graphite); letter-spacing: .06em; }
+  .counter b { color: var(--magenta); }
+  .dope { display: grid; grid-template-columns: repeat(72, 1fr); gap: 1px; margin-top: 10px; height: 18px; }
+  .dope button { all: unset; cursor: pointer; background: var(--paper-shade); border-radius: 1px; }
+  .dope button.key { background: color-mix(in srgb, var(--col-blue) 30%, var(--paper-shade)); }
+  .dope button[aria-current="true"] { background: var(--magenta); }
+  .hint { position: absolute; left: 18px; bottom: -30px; font: 400 12px/1 var(--mono); color: var(--graphite-soft); }
+  .hint kbd { font: inherit; padding: 1px 5px; border: 1px solid currentColor; border-radius: 3px; }
+  .note { position: absolute; right: -6px; top: -26px; font: italic 400 15px/1 var(--display); color: var(--col-blue); transform: rotate(-3deg); }
+
+  @media (max-width: 860px) {
+    .hero { height: 220vh; }
+    .stage { grid-template-columns: 1fr; align-content: start; gap: 22px; padding-top: 76px; }
+    h1 { margin: 12px 0 12px; }
+    .lede { margin-bottom: 18px; font-size: 15px; }
+    .sheet { padding: 28px 10px 10px; }
+    .dope { height: 14px; }
+    .note { display: none; }
+  }
+
+  /* below the fold teaser */
+  .next { padding: 120px clamp(16px, 4vw, 48px) 160px; }
+  .next h2 { font: 400 clamp(32px, 4vw, 56px)/1 var(--display); font-variation-settings: "opsz" 144, "SOFT" 100; margin: 0 0 28px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+  .card { background: var(--sheet); padding: 10px 10px 14px; border-radius: 4px; box-shadow: 0 0 0 1px rgba(0,0,0,.06); text-decoration: none; transition: transform .25s steps(3); }
+  .card:hover { transform: rotate(-1deg) translateY(-4px); }
+  .card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; border-radius: 2px; }
+  .card p { margin: 10px 2px 0; font-weight: 600; }
+  .card small { display: block; margin: 4px 2px 0; font: 400 12px var(--mono); color: var(--graphite-soft); }
+  .tag { position: fixed; right: 12px; bottom: 12px; z-index: 20; font: 600 11px/1 var(--mono); background: var(--graphite); color: var(--paper); padding: 6px 9px; border-radius: 4px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero { height: auto; }
+    .stage { position: relative; height: auto; min-height: 100svh; }
+    .logo-mark i { animation: none; transform: scale(1.2, .8); }
+    .card { transition: none; }
+  }
+</style>
+</head>
+<body>
+<header class="bar">
+  <a class="logo" href="#" aria-label="Frame by Frame Studio, home">
+    <span class="logo-mark" aria-hidden="true"><i></i><b></b></span>
+    <span class="logo-word">frame<br>by<br>frame</span>
+  </a>
+  <nav aria-label="Main"><a href="#">Work</a><a href="#">Services</a><a href="#">About</a><a href="#">Contact</a></nav>
+  <a class="cta" href="#">Start a project</a>
+</header>
+
+<main>
+  <section class="hero" id="hero">
+    <div class="stage">
+      <div>
+        <p class="eyebrow">Creative studio · Addis Ababa</p>
+        <h1>We make ideas <em>move</em>, frame by frame.</h1>
+        <p class="lede">Animation, content production and live streaming, from the first rough sketch to the final render. Every frame made with love.</p>
+        <div class="actions">
+          <a class="cta" href="#">▶ Play reel</a>
+          <a class="cta ghost" href="#work">See the work</a>
+        </div>
+      </div>
+
+      <div class="desk">
+        <span class="note" aria-hidden="true">squash ↓ stretch ↑</span>
+        <div class="sheet" id="sheet" tabindex="0" role="slider" aria-label="Flipbook: bouncing ball sequence. Use arrow keys to step frames." aria-valuemin="1" aria-valuemax="72" aria-valuenow="1">
+          <div class="pegs" aria-hidden="true"><span></span><span></span><span></span></div>
+          <canvas id="flip" aria-hidden="true"></canvas>
+          <div class="hud">
+            <span>SC 01 · BOUNCE · 12 fps</span>
+            <span class="counter" id="counter">FRAME <b>001</b> / 072</span>
+          </div>
+          <div class="dope" id="dope" aria-hidden="true"></div>
+        </div>
+        <p class="hint">Scroll, drag or <kbd>←</kbd> <kbd>→</kbd> to flip</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="next" id="work">
+    <h2>Selected work</h2>
+    <div class="cards">
+      <a class="card" href="https://fbf.studio/work/marriage-laws-in-africa/"><img src="../content/raw/2021/07/01-23.jpg" alt="Animated classroom scene from Marriage Laws in Africa"><p>Marriage Laws in Africa</p><small>UN Women · Animation</small></a>
+      <a class="card" href="https://fbf.studio/work/smartface/"><img src="../content/raw/2021/07/01-4.jpg" alt="Illustrated desk with laptop and paperwork from the WFP Smart-face explainer"><p>Smart-face &amp; Conveyer Belt</p><small>WFP · Animation</small></a>
+      <a class="card" href="https://fbf.studio/work/ifrc/"><img src="../content/raw/2021/07/01-16.jpg" alt="Migrant family walking, with the caption 272 million people"><p>Practice Guide for Migrant Health Workers</p><small>IFRC · Animation</small></a>
+    </div>
+  </section>
+</main>
+<span class="tag">Direction A · Lightbox · mock</span>
+
+<script>
+(() => {
+  const TOTAL = 72, INTRO = 36, FPS = 12;
+  const canvas = document.getElementById('flip'), ctx = canvas.getContext('2d');
+  const sheet = document.getElementById('sheet'), counter = document.getElementById('counter'), dope = document.getElementById('dope');
+  const hero = document.getElementById('hero');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+  // ---- the sequence, as data: x, y (ball bottom), sx, sy, plus wordmark/line progress ----
+  const G = .8, R = .075, X1 = .3, frames = [];
+  { // act 1: drop in and settle (frames 0–35, autoplayed on load)
+    const hs = [.62, .34, .15, .05], start = { x: .07 };
+    const segs = [{ h: hs[0], d: Math.sqrt(hs[0]), half: true }, ...hs.slice(1).map(h => ({ h, d: 2 * Math.sqrt(h) }))];
+    const total = segs.reduce((a, s) => a + s.d, 0), contacts = [];
+    let acc = 0; for (const s of segs) { acc += s.d; contacts.push(acc); }
+    const yAt = T => { let t = T; for (const s of segs) { if (t <= s.d) { const u = t / s.d; return s.half ? G - s.h * (1 - u * u) : G - 4 * s.h * u * (1 - u); } t -= s.d; } return G; };
+    const n = 31;
+    for (let f = 0; f <= n; f++) {
+      const T = f / n * total, dt = total / n, x = start.x + (X1 - start.x) * Math.min(1, T / total);
+      const hit = contacts.findIndex(c => Math.abs(T - c) < dt / 2);
+      if (hit >= 0) { const k = [.55, .65, .78, .9][hit]; frames.push({ x, y: G, sx: 1 / k, sy: k }); continue; }
+      const y = yAt(T), v = Math.abs(yAt(Math.min(total, T + dt)) - yAt(Math.max(0, T - dt))) / (2 * dt);
+      const s = Math.min(1.32, 1 + v * .55); frames.push({ x, y, sx: 1 / s, sy: s });
+    }
+    [[1.06, .94], [.97, 1.03], [1, 1], [1, 1]].forEach(([sx, sy]) => frames.push({ x: X1, y: G, sx, sy }));
+  }
+  { // act 2: anticipation, leap, land into the logo pose, wordmark writes on (frames 36–71, scroll-scrubbed)
+    [.88, .76, .7, .7].forEach(k => frames.push({ x: X1, y: G, sx: 1 / k, sy: k }));
+    const n = 16, x0 = X1, x1 = .56, h = .5;
+    for (let i = 1; i <= n; i++) {
+      const u = i / (n + 1), y = G - 4 * h * u * (1 - u), v = Math.abs(1 - 2 * u);
+      const s = 1 + v * .3; frames.push({ x: x0 + (x1 - x0) * u, y, sx: 1 / s, sy: s });
+    }
+    [[1.55, .55], [1.18, .82], [.92, 1.1], [1.02, .98], [1, 1], [1, 1]].forEach(([sx, sy]) => frames.push({ x: x1, y: G, sx, sy, line: 1 }));
+    for (let i = 0; i < 6; i++) frames.push({ x: x1, y: G, sx: 1, sy: 1, line: 1, word: (i + 1) / 6 });
+    for (let i = 0; i < 4; i++) frames.push({ x: x1, y: G, sx: 1, sy: 1, line: 1, word: 1 }); // hold the logo pose
+    frames.forEach((f, i) => { if (i >= 56 && f.line == null) f.line = 1; if (i >= 56 && i < 62) f.line = (i - 55) / 6; });
+  }
+
+  // ---- pencil rendering ----
+  let W = 0, H = 0, dpr = 1;
+  function size() { dpr = Math.min(2, devicePixelRatio || 1); const r = canvas.getBoundingClientRect(); W = r.width; H = r.height; canvas.width = W * dpr; canvas.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+  const rand = s => () => (s = (s * 16807) % 2147483647) / 2147483647;
+  function pencilEllipse(cx, cy, rx, ry, seed, stroke, fill, lw) {
+    const r = rand(seed * 97 + 13), pts = 26;
+    if (fill) { ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2); ctx.fillStyle = fill; ctx.fill(); }
+    if (!stroke) return;
+    for (let pass = 0; pass < 2; pass++) {
+      ctx.beginPath();
+      const a0 = r() * Math.PI * 2, span = Math.PI * 2 + .35;
+      for (let i = 0; i <= pts; i++) {
+        const a = a0 + span * i / pts, j = 1 + (r() - .5) * .045;
+        const x = cx + Math.cos(a) * rx * j, y = cy + Math.sin(a) * ry * j;
+        i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      }
+      ctx.strokeStyle = stroke; ctx.lineWidth = lw * (pass ? .6 : 1); ctx.globalAlpha = pass ? .55 : 1; ctx.stroke(); ctx.globalAlpha = 1;
+    }
+  }
+  function pencilLine(x0, y0, x1, y1, seed, color, lw) {
+    const r = rand(seed * 31 + 7);
+    ctx.beginPath(); const n = 18;
+    for (let i = 0; i <= n; i++) { const t = i / n; const x = x0 + (x1 - x0) * t, y = y0 + (y1 - y0) * t + (r() - .5) * 1.4; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+    ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.stroke();
+  }
+  const ball = (f, seed, style) => {
+    const u = Math.min(W, H * 1.6), rx = R * u * f.sx * .62, ry = R * u * f.sy * .62;
+    const cx = f.x * W, cy = f.y * H - ry;
+    if (style === 'clean') pencilEllipse(cx, cy, rx, ry, seed, css('--graphite'), css('--teal'), 2);
+    else if (style === 'prev') pencilEllipse(cx, cy, rx, ry, seed, css('--col-blue'), hexA(css('--onion'), .55), 1.2);
+    else pencilEllipse(cx, cy, rx, ry, seed, hexA(css('--magenta'), .35), null, 1);
+  };
+  const hexA = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${n >> 8 & 255},${n & 255},${a})`; };
+
+  let boil = 0;
+  function draw(i) {
+    ctx.clearRect(0, 0, W, H);
+    const f = frames[i], seed = i * 3 + boil;
+    // spacing chart: faint blue arc through every frame of the current act
+    const act = i < INTRO ? frames.slice(0, INTRO) : frames.slice(INTRO);
+    ctx.setLineDash([2, 5]); ctx.beginPath();
+    act.forEach((p, k) => { const y = p.y * H - R * Math.min(W, H * 1.6) * .62; k ? ctx.lineTo(p.x * W, y) : ctx.moveTo(p.x * W, y); });
+    ctx.strokeStyle = hexA(css('--col-blue'), .28); ctx.lineWidth = 1; ctx.stroke(); ctx.setLineDash([]);
+    // ground: pencil line, and the magenta logo line once the ball lands
+    pencilLine(W * .03, G * H, W * .97, G * H, 5 + boil, hexA(css('--graphite'), .25), 1);
+    if (f.line) { const lw = R * Math.min(W, H * 1.6) * 1.5, x = f.x * W - lw / 2; ctx.fillStyle = css('--magenta'); ctx.fillRect(x, G * H + 2, lw * f.line, Math.max(4, H * .014)); }
+    // onion skins: two previous frames (blue), one next frame (magenta)
+    if (i > 1) ball(frames[i - 2], seed - 6, 'prev');
+    if (i > 0) ball(frames[i - 1], seed - 3, 'prev');
+    if (i < TOTAL - 1 && !frames[i].word) ball(frames[i + 1], seed + 3, 'next');
+    ball(f, seed, 'clean');
+    // wordmark write-on, stepped
+    if (f.word) {
+      const words = ['frame', 'by', 'frame'], size = H * .13, x = f.x * W + R * Math.min(W, H * 1.6) * .9;
+      ctx.font = `700 ${size}px "Instrument Sans", system-ui`; ctx.fillStyle = css('--graphite'); ctx.textBaseline = 'alphabetic';
+      const chars = Math.round(f.word * 13); let used = 0;
+      words.forEach((w, k) => { const take = Math.max(0, Math.min(w.length, chars - used)); used += w.length; ctx.fillText(w.slice(0, take), x, G * H - size * .86 * (2 - k) + size * .08); });
+    }
+  }
+
+  // ---- state: one current frame, many inputs ----
+  let cur = -1, target = 0, playing = false, last = 0;
+  function show(i) {
+    i = Math.max(0, Math.min(TOTAL - 1, Math.round(i)));
+    if (i === cur) return; cur = i; draw(i);
+    const n = String(i + 1).padStart(3, '0');
+    counter.innerHTML = `FRAME <b>${n}</b> / ${TOTAL.toString().padStart(3, '0')}`;
+    sheet.setAttribute('aria-valuenow', i + 1);
+    dope.querySelectorAll('button').forEach((b, k) => b.setAttribute('aria-current', k === i));
+  }
+  // flip toward the target one frame per tick, like thumbing a flipbook
+  // time-based, so a dropped-frame phone skips drawings instead of slowing the clock
+  let playStart = 0;
+  function tick(t) {
+    if (playing) {
+      if (!playStart) playStart = t;
+      target = Math.min(INTRO - 1, Math.floor((t - playStart) / 1000 * FPS));
+      show(target); last = t;
+      if (target >= INTRO - 1) playing = false;
+    } else if (cur !== target) {
+      const steps = Math.max(1, Math.floor((t - last) / (1000 / 30)));
+      if (t - last >= 1000 / 30) { last = t; show(cur + Math.sign(target - cur) * Math.min(steps, Math.abs(target - cur))); }
+    } else last = t;
+    requestAnimationFrame(tick);
+  }
+
+  // scroll → act 2
+  function onScroll() {
+    if (reduce) return;
+    const r = hero.getBoundingClientRect(), range = hero.offsetHeight - innerHeight;
+    const p = Math.max(0, Math.min(1, -r.top / range));
+    if (p > 0) { playing = false; target = INTRO - 1 + Math.round(p * (TOTAL - INTRO)); }
+    else if (!playing && cur >= INTRO - 1) target = INTRO - 1;
+  }
+  addEventListener('scroll', onScroll, { passive: true });
+
+  // drag / swipe anywhere on the sheet
+  let dragX = null, dragFrom = 0;
+  sheet.addEventListener('pointerdown', e => { dragX = e.clientX; dragFrom = cur; playing = false; sheet.setPointerCapture(e.pointerId); });
+  sheet.addEventListener('pointermove', e => { if (dragX == null) return; const dx = (e.clientX - dragX) / sheet.clientWidth; target = Math.max(0, Math.min(TOTAL - 1, Math.round(dragFrom + dx * TOTAL))); });
+  sheet.addEventListener('pointerup', () => dragX = null);
+  sheet.addEventListener('keydown', e => {
+    const d = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 }[e.key];
+    if (d) { e.preventDefault(); playing = false; target = Math.max(0, Math.min(TOTAL - 1, cur + d)); show(target); }
+    if (e.key === 'Home') { target = 0; show(0); } if (e.key === 'End') { target = TOTAL - 1; show(TOTAL - 1); }
+  });
+
+  // dope sheet: one cell per frame, key poses tinted
+  const keys = new Set([0, 9, 19, 26, 31, 35, 39, 48, 56, 61, 71]);
+  for (let k = 0; k < TOTAL; k++) { const b = document.createElement('button'); b.tabIndex = -1; if (keys.has(k)) b.className = 'key'; b.title = `Frame ${k + 1}`; b.onclick = () => { playing = false; target = k; show(k); }; dope.append(b); }
+
+  // line boil while idle: three alternating seeds at 8 fps
+  if (!reduce) setInterval(() => { if (cur === target && !playing && dragX == null) { boil = (boil + 1) % 3; const c = cur; cur = -1; show(c); } }, 125);
+
+  addEventListener('resize', () => { size(); const c = cur; cur = -1; show(c); });
+  document.fonts.ready.then(() => {
+    size();
+    if (reduce) { show(TOTAL - 1); target = TOTAL - 1; }
+    else { show(0); playing = true; }
+    requestAnimationFrame(tick);
+  });
+})();
+</script>
+</body>
+</html>
