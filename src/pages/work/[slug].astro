@@ -1,0 +1,165 @@
+---
+import CtaBand from '../../components/CtaBand.astro';
+import Picture from '../../components/Picture.astro';
+import OnionViewer from '../../components/work/OnionViewer.astro';
+import YouTube from '../../components/work/YouTube.astro';
+import Base from '../../layouts/Base.astro';
+import { getProject, getProjects } from '../../lib/content';
+
+export async function getStaticPaths() {
+  const projects = await getProjects();
+  return projects.map((p) => ({ params: { slug: p.slug } }));
+}
+
+const found = await getProject(Astro.params.slug!);
+if (!found) return Astro.redirect('/work');
+const { project: p, prev, next } = found;
+const serviceLabel = { animation: 'Animation', production: 'Content production', live: 'Live streaming' };
+const story = [
+  { title: 'The brief', body: p.problem },
+  { title: 'Our approach', body: p.approach },
+  { title: 'The result', body: p.result },
+].filter((s) => s.body);
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  name: p.title,
+  description: p.description,
+  image: new URL(p.cover.src, Astro.site).href,
+  creator: { '@type': 'Organization', name: 'Frame by Frame Studio' },
+  ...(p.year && { dateCreated: String(p.year) }),
+  ...(p.youtubeId && {
+    video: {
+      '@type': 'VideoObject',
+      name: p.title,
+      description: p.description,
+      thumbnailUrl: new URL(p.cover.src, Astro.site).href,
+      embedUrl: `https://www.youtube-nocookie.com/embed/${p.youtubeId}`,
+    },
+  }),
+};
+---
+
+<Base title={p.title} description={p.description.slice(0, 155)} image={p.cover.src} schema={schema}>
+  <article>
+    <header class="wrap pb-10 pt-14 md:pt-20">
+      <p class="eyebrow">
+        {[p.format, p.year].filter(Boolean).join(' · ') || 'Project'}
+      </p>
+      <h1 class="mt-4 max-w-[20ch] text-[length:clamp(2.25rem,5vw,4.5rem)] leading-[1]">{p.title}</h1>
+      <dl class="mt-8 flex flex-wrap gap-x-10 gap-y-4">
+        <div>
+          <dt class="font-mono text-xs uppercase tracking-[0.12em] text-ink-soft">Client</dt>
+          <dd class="mt-1 font-semibold">{p.clientLabel}</dd>
+        </div>
+        <div>
+          <dt class="font-mono text-xs uppercase tracking-[0.12em] text-ink-soft">Services</dt>
+          <dd class="mt-1 font-semibold">
+            {p.services.map((s, i) => (
+              <>
+                {i > 0 && ', '}
+                <a class="link-pencil" href={`/work?service=${s}`}>{serviceLabel[s]}</a>
+              </>
+            ))}
+          </dd>
+        </div>
+      </dl>
+    </header>
+
+    <div class="wrap">
+      <div class="sheet p-2.5 md:p-3.5">
+        {
+          p.youtubeId ? (
+            <YouTube id={p.youtubeId} title={p.title} poster={p.cover} />
+          ) : (
+            <Picture img={p.cover} priority sizes="(min-width: 1440px) 1380px, 100vw" class="aspect-video w-full rounded-[3px] object-cover" />
+          )
+        }
+      </div>
+    </div>
+
+    <div class="wrap grid gap-12 py-16 md:grid-cols-[2fr_1fr] md:py-20">
+      <div class="space-y-10">
+        <p class="font-display text-[length:clamp(1.25rem,2.2vw,1.75rem)] leading-[1.35] [font-variation-settings:'SOFT'_100]">
+          {p.description}
+        </p>
+        {
+          story.map((s) => (
+            <section>
+              <h2 class="eyebrow">{s.title}</h2>
+              <p class="mt-3 text-lede">{s.body}</p>
+            </section>
+          ))
+        }
+      </div>
+
+      {
+        p.credits.length > 0 && (
+          <aside aria-labelledby="credits-title">
+            <h2 id="credits-title" class="eyebrow">Credits</h2>
+            <dl class="credits mt-4">
+              {p.credits.map((c) => (
+                <div>
+                  <dt>{c.role}</dt>
+                  <dd>{c.names}</dd>
+                </div>
+              ))}
+            </dl>
+          </aside>
+        )
+      }
+    </div>
+
+    <div class="wrap">
+      <OnionViewer frames={p.gallery} title={p.title} />
+    </div>
+
+    <nav class="wrap mt-20 grid gap-4 sm:grid-cols-2" aria-label="More projects">
+      <a href={`/work/${prev.slug}`} class="pager" data-cursor="Prev">
+        <span class="font-mono text-xs text-ink-soft">← Previous</span>
+        <span class="mt-1 block font-semibold">{prev.title}</span>
+      </a>
+      <a href={`/work/${next.slug}`} class="pager sm:text-right" data-cursor="Next">
+        <span class="font-mono text-xs text-ink-soft">Next →</span>
+        <span class="mt-1 block font-semibold">{next.title}</span>
+      </a>
+    </nav>
+  </article>
+
+  <CtaBand title="Want something like this?" />
+</Base>
+
+<style>
+  .credits {
+    display: grid;
+    gap: 0;
+    border-top: 1px solid var(--rule);
+  }
+  .credits div {
+    display: grid;
+    grid-template-columns: minmax(7rem, 2fr) 3fr;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .credits dt {
+    font: 500 0.75rem/1.5 var(--font-mono);
+    color: var(--ink-soft);
+  }
+  .credits dd {
+    font-size: 0.9375rem;
+  }
+  .pager {
+    display: block;
+    padding: 1.25rem 1.5rem;
+    border-radius: 6px;
+    background: var(--sheet);
+    box-shadow: var(--shadow-sheet);
+    text-decoration: none;
+    transition: transform 0.25s steps(3);
+  }
+  .pager:hover {
+    transform: translateY(-3px) rotate(-0.5deg);
+  }
+</style>

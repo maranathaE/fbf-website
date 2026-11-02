@@ -1,0 +1,193 @@
+@import "tailwindcss";
+@import "@fontsource-variable/fraunces/soft.css";
+@import "@fontsource-variable/fraunces/soft-italic.css";
+@import "@fontsource-variable/instrument-sans/wght.css";
+@import "@fontsource-variable/jetbrains-mono/wght.css";
+@import "./motion.css";
+
+/*
+ * Direction A, "Lightbox": the site is an animator's desk.
+ * Paper and graphite carry the text; the logo's teal and magenta are the accents.
+ * Raw brand colours (teal, magenta) fail AA as text on paper, so text uses the
+ * "-ink" variants. Ratios are in docs/design-tokens.md.
+ */
+:root {
+  --header-h: 4rem;
+  --paper: #f2ede3;
+  --paper-shade: #e6dfd1;
+  --sheet: #fbf8f1;
+  --ink: #1d1b18;
+  --ink-soft: #5b554c;
+  --rule: rgb(29 27 24 / 0.12);
+  --teal: #50bdae;
+  --teal-ink: #1c7468;
+  --magenta: #f50979;
+  --magenta-ink: #c80063;
+  --on-magenta: #ffffff;
+  --onion: #cfebc5;
+  --pencil: #3d63dd;
+  --pencil-ink: #2f52c4;
+  --ochre: #e3a33b;
+  --tally: #e5322b;
+  --glow: rgb(255 246 226 / 0);
+  --shadow-sheet: 0 0 0 1px rgb(0 0 0 / 0.06), 0 30px 60px -30px rgb(40 30 10 / 0.35);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #16130f;
+    --paper-shade: #221e18;
+    --sheet: #2a251e;
+    --ink: #f2ede3;
+    --ink-soft: #a79f92;
+    --rule: rgb(242 237 227 / 0.14);
+    --teal-ink: #50bdae;
+    --magenta-ink: #ff4d9d;
+    --on-magenta: #16130f;
+    --pencil: #7d98f0;
+    --pencil-ink: #7d98f0;
+    --glow: rgb(255 246 226 / 0.07);
+    --shadow-sheet: 0 0 0 1px rgb(255 255 255 / 0.06), 0 30px 60px -30px rgb(0 0 0 / 0.6);
+    color-scheme: dark;
+  }
+}
+
+@theme {
+  --color-paper: var(--paper);
+  --color-paper-shade: var(--paper-shade);
+  --color-sheet: var(--sheet);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-rule: var(--rule);
+  --color-teal: var(--teal);
+  --color-teal-ink: var(--teal-ink);
+  --color-magenta: var(--magenta);
+  --color-magenta-ink: var(--magenta-ink);
+  --color-on-magenta: var(--on-magenta);
+  --color-onion: var(--onion);
+  --color-pencil: var(--pencil);
+  --color-pencil-ink: var(--pencil-ink);
+  --color-ochre: var(--ochre);
+  --color-tally: var(--tally);
+
+  --font-display: "Fraunces Variable", Georgia, serif;
+  --font-sans: "Instrument Sans Variable", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+
+  --text-display: clamp(2.5rem, 6.2vw, 5.75rem);
+  --text-display--line-height: 0.96;
+  --text-title: clamp(2rem, 4vw, 3.5rem);
+  --text-title--line-height: 1;
+  --text-lede: clamp(1rem, 1.35vw, 1.1875rem);
+  --text-lede--line-height: 1.55;
+
+  /* One drawing "on twos" at 24 fps: the base unit of all UI motion. */
+  --ease-twos: steps(3, end);
+  --animate-boil: boil 0.375s steps(3) infinite;
+
+  --breakpoint-xs: 30rem;
+}
+
+@keyframes boil {
+  0% { filter: url(#boil-0); }
+  33% { filter: url(#boil-1); }
+  66% { filter: url(#boil-2); }
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scrollbar-gutter: stable;
+  }
+  body {
+    @apply bg-paper font-sans text-ink antialiased;
+    /* paper tooth */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  :focus-visible {
+    outline: 3px solid var(--pencil);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  ::selection {
+    background: var(--onion);
+    color: #1d1b18;
+  }
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-variation-settings: "SOFT" 100;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  img, video, canvas {
+    max-width: 100%;
+  }
+}
+
+@layer components {
+  .wrap {
+    width: 100%;
+    max-width: 90rem;
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 4vw, 3rem);
+  }
+  .eyebrow {
+    @apply flex items-center gap-2.5 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-ink-soft;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 22px;
+    height: 2px;
+    background: var(--magenta);
+  }
+  .btn {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 py-2.5 text-[0.9375rem] font-semibold no-underline;
+    transition: transform 0.125s var(--ease-twos), background-color 0.125s var(--ease-twos);
+  }
+  .btn-primary {
+    @apply bg-magenta-ink text-on-magenta;
+  }
+  .btn-ghost {
+    @apply text-ink;
+    box-shadow: inset 0 0 0 1.5px currentColor;
+  }
+  .sheet {
+    @apply rounded-md bg-sheet;
+    box-shadow: var(--shadow-sheet), 0 0 120px 30px var(--glow);
+  }
+  .link-pencil {
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--pencil) 45%, transparent);
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: 1.5px;
+  }
+  .link-pencil:hover {
+    text-decoration: underline wavy var(--pencil) 1.5px;
+  }
+  .note {
+    @apply font-display text-pencil-ink italic;
+  }
+  .prose-fbf p + p {
+    margin-top: 1em;
+  }
+}
+
+@utility sr-only-focusable {
+  &:not(:focus):not(:focus-within) {
+    @apply sr-only;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,65 @@
+---
+// The FBF mark: the teal ball bouncing on the magenta line, on twos, beside the stacked wordmark.
+interface Props {
+  size?: 'sm' | 'lg';
+}
+const { size = 'sm' } = Astro.props;
+---
+
+<span class:list={['logo', size]}>
+  <span class="mark" aria-hidden="true"><i></i><b></b></span>
+  <span class="word">frame<br />by<br />frame</span>
+</span>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+    --u: 1px;
+  }
+  .lg {
+    --u: 2px;
+  }
+  .mark {
+    position: relative;
+    width: calc(26 * var(--u));
+    height: calc(34 * var(--u));
+  }
+  .mark i {
+    position: absolute;
+    left: var(--u);
+    bottom: calc(5 * var(--u));
+    width: calc(24 * var(--u));
+    height: calc(24 * var(--u));
+    border-radius: 50%;
+    background: var(--teal);
+    transform-origin: 50% 100%;
+    animation: logo-bounce 1.6s steps(12) infinite;
+  }
+  .mark b {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: calc(26 * var(--u));
+    height: calc(3 * var(--u));
+    background: var(--magenta);
+  }
+  .word {
+    font: 700 calc(13 * var(--u)) / 0.92 var(--font-sans);
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+  @keyframes logo-bounce {
+    0%, 100% { transform: translateY(0) scale(1.25, 0.75); }
+    15% { transform: translateY(calc(-4 * var(--u))) scale(0.9, 1.1); }
+    50% { transform: translateY(calc(-10 * var(--u))) scale(1); }
+    85% { transform: translateY(calc(-4 * var(--u))) scale(0.9, 1.1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mark i {
+      animation: none;
+      transform: scale(1.2, 0.8);
+    }
+  }
+</style>

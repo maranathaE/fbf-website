@@ -1,0 +1,22 @@
+---
+// Shown at /admin until a Sanity project is connected (see docs/cms.md).
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Editor" noindex>
+  <section class="wrap py-24">
+    <div class="sheet max-w-2xl p-8 md:p-12">
+      <p class="eyebrow">Content editor</p>
+      <h1 class="mt-4 text-title">The editor isn't connected yet</h1>
+      <p class="mt-6 text-lede text-ink-soft">
+        This is where FBF staff will log in to edit projects, the team, client logos, page text and where
+        briefs are sent. The site is showing its built-in starter content until then.
+      </p>
+      <ol class="mt-8 list-decimal space-y-2 pl-5">
+        <li>Create a free project at <a class="link-pencil" href="https://www.sanity.io/manage">sanity.io/manage</a>.</li>
+        <li>Add <code class="font-mono text-sm">PUBLIC_SANITY_PROJECT_ID</code> in Vercel's environment variables and redeploy.</li>
+        <li>Import the starter content and invite staff. Step-by-step instructions are in <code class="font-mono text-sm">docs/cms.md</code>.</li>
+      </ol>
+    </div>
+  </section>
+</Base>

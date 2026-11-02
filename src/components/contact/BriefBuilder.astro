@@ -1,0 +1,344 @@
+---
+// Multi-step brief builder. Without JavaScript it is one long form that posts to /api/brief;
+// with it, five steps ("frames") with checks, a review screen, and a saved draft.
+import { SERVICE_CHOICES } from '../../lib/brief';
+import { getSettings } from '../../lib/content';
+
+const { brief, contact } = await getSettings();
+const steps = ['What you need', 'Scope', 'The story', 'About you', 'Review'];
+---
+
+<div class="builder sheet" data-brief data-success={brief.successMessage} data-email={contact.email}>
+  <div class="progress" aria-hidden="true">
+    <span class="counter" data-brief-counter>FRAME 01 / 05</span>
+    <ol class="cells">
+      {steps.map((s, i) => <li data-cell={i}><span>{s}</span></li>)}
+    </ol>
+    <span class="ball" data-brief-ball></span>
+  </div>
+
+  <form method="post" action="/api/brief" data-brief-form>
+    <div class="errors" role="alert" tabindex="-1" hidden data-brief-errors></div>
+
+    <fieldset data-step="0">
+      <legend><span class="n">01</span> What do you need?</legend>
+      <p class="hint" id="services-hint">Pick everything that applies.</p>
+      <div class="choices" data-group="services">
+        {
+          SERVICE_CHOICES.map((c) => (
+            <label class="choice">
+              <input type="checkbox" name="services" value={c.value} aria-describedby="services-hint services-error" />
+              <span>{c.label}</span>
+            </label>
+          ))
+        }
+      </div>
+      <p class="error" id="services-error" data-error="services"></p>
+    </fieldset>
+
+    <fieldset data-step="1">
+      <legend><span class="n">02</span> Scope</legend>
+      <div class="grid gap-6 md:grid-cols-2">
+        <fieldset class="sub">
+          <legend>Budget</legend>
+          <div class="choices">
+            {brief.budgets.map((b) => (
+              <label class="choice"><input type="radio" name="budget" value={b} /><span>{b}</span></label>
+            ))}
+          </div>
+        </fieldset>
+        <fieldset class="sub">
+          <legend>Timeline</legend>
+          <div class="choices">
+            {brief.timelines.map((t) => (
+              <label class="choice"><input type="radio" name="timeline" value={t} /><span>{t}</span></label>
+            ))}
+          </div>
+        </fieldset>
+      </div>
+      <p class="hint mt-4">Both optional: a rough idea helps us reply with a useful plan.</p>
+    </fieldset>
+
+    <fieldset data-step="2">
+      <legend><span class="n">03</span> The story</legend>
+      <label class="field">
+        <span>What are you making, and who is it for? <span class="req">Required</span></span>
+        <textarea name="message" rows="6" required minlength="20" maxlength="5000" aria-describedby="message-error"></textarea>
+      </label>
+      <p class="error" id="message-error" data-error="message"></p>
+      <div class="grid gap-5 md:grid-cols-2">
+        <label class="field">
+          <span>Links (references, scripts, past work)</span>
+          <textarea name="links" rows="2" maxlength="1000"></textarea>
+        </label>
+        <label class="field">
+          <span>Any hard deadline?</span>
+          <input type="date" name="deadline" />
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset data-step="3">
+      <legend><span class="n">04</span> About you</legend>
+      <div class="grid gap-5 md:grid-cols-2">
+        <label class="field">
+          <span>Your name <span class="req">Required</span></span>
+          <input name="name" autocomplete="name" required aria-describedby="name-error" />
+          <span class="error" id="name-error" data-error="name"></span>
+        </label>
+        <label class="field">
+          <span>Email <span class="req">Required</span></span>
+          <input type="email" name="email" autocomplete="email" required aria-describedby="email-error" />
+          <span class="error" id="email-error" data-error="email"></span>
+        </label>
+        <label class="field md:col-span-2">
+          <span>Organisation</span>
+          <input name="organisation" autocomplete="organization" />
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset data-step="4" class="review-step">
+      <legend><span class="n">05</span> Review</legend>
+      <dl class="review" data-brief-review></dl>
+    </fieldset>
+
+    <div class="trap" aria-hidden="true">
+      <label>Leave this empty <input name="website" tabindex="-1" autocomplete="off" /></label>
+    </div>
+    <input type="hidden" name="t" value="" data-brief-time />
+
+    <div class="nav">
+      <button type="button" class="btn btn-ghost" data-brief-back hidden>Back</button>
+      <button type="button" class="btn btn-primary" data-brief-next hidden data-magnetic="0.2">Next</button>
+      <button type="submit" class="btn btn-primary" data-brief-submit data-magnetic="0.2">Send brief</button>
+    </div>
+    <p class="sr-only" aria-live="polite" data-brief-status></p>
+  </form>
+
+  <div class="fallback" hidden data-brief-fallback>
+    <h2 class="text-3xl">Almost there.</h2>
+    <p class="mt-3 text-ink-soft">
+      Our brief inbox isn't switched on yet, so your brief couldn't be sent from here. Nothing is lost: send it as an email instead.
+    </p>
+    <a class="btn btn-primary mt-6" data-brief-mailto href={`mailto:${contact.email}`}>Open it in my email app</a>
+  </div>
+</div>
+
+<style>
+  .builder {
+    position: relative;
+    padding: clamp(1.25rem, 3vw, 2.5rem);
+  }
+  .progress {
+    position: relative;
+    margin-bottom: 2rem;
+  }
+  .counter {
+    font: 600 0.75rem/1 var(--font-mono);
+    letter-spacing: 0.08em;
+    color: var(--magenta-ink);
+  }
+  .cells {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2px;
+    margin-top: 1.9rem;
+  }
+  .cells li {
+    height: 6px;
+    background: var(--paper-shade);
+    border-radius: 2px;
+  }
+  .cells li span {
+    display: none;
+  }
+  .cells li.is-done,
+  .cells li.is-current {
+    background: var(--teal);
+  }
+  .ball {
+    position: absolute;
+    top: 1.3rem;
+    left: calc(var(--step, 0) * 20% + 10% - 0.45rem);
+    width: 0.9rem;
+    height: 0.9rem;
+    border-radius: 50%;
+    background: var(--magenta);
+    transition: left 0.33s steps(4);
+    animation: hop 0.33s steps(4);
+  }
+  @keyframes hop {
+    50% { translate: 0 -0.7rem; scale: 0.85 1.15; }
+  }
+  fieldset {
+    border: 0;
+    margin: 0 0 2rem;
+    padding: 0;
+    min-width: 0;
+  }
+  legend {
+    font: 400 clamp(1.5rem, 3vw, 2.25rem) / 1.1 var(--font-display);
+    font-variation-settings: 'SOFT' 100;
+    margin-bottom: 1rem;
+  }
+  legend .n {
+    font: 600 0.75rem/1 var(--font-mono);
+    color: var(--magenta-ink);
+    vertical-align: middle;
+    margin-right: 0.5rem;
+  }
+  .sub legend {
+    font: 600 0.75rem/1 var(--font-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 0.75rem;
+  }
+  .choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .choice {
+    position: relative;
+  }
+  .choice input {
+    position: absolute;
+    opacity: 0;
+    inset: 0;
+    cursor: pointer;
+  }
+  .choice span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1.5px var(--rule);
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+  .choice input:hover + span {
+    box-shadow: inset 0 0 0 1.5px var(--ink);
+  }
+  .choice input:checked + span {
+    background: var(--ink);
+    color: var(--paper);
+    box-shadow: none;
+  }
+  .choice input:focus-visible + span {
+    outline: 3px solid var(--pencil);
+    outline-offset: 3px;
+  }
+  .field {
+    display: grid;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+  .field > span:first-child {
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+  .req {
+    font: 500 0.6875rem/1 var(--font-mono);
+    color: var(--ink-soft);
+    margin-left: 0.4rem;
+  }
+  input:not([type='checkbox'], [type='radio']),
+  textarea {
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.6rem 0.8rem;
+    border-radius: 6px;
+    border: 1.5px solid var(--rule);
+    background: var(--paper);
+    font: inherit;
+    color: inherit;
+  }
+  input:focus,
+  textarea:focus {
+    border-color: var(--ink);
+  }
+  [aria-invalid='true'] {
+    border-color: var(--magenta-ink) !important;
+  }
+  .hint {
+    font-size: 0.875rem;
+    color: var(--ink-soft);
+    margin-bottom: 0.75rem;
+  }
+  .error {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--magenta-ink);
+    min-height: 0;
+  }
+  .error:empty {
+    display: none;
+  }
+  .errors {
+    margin-bottom: 1.5rem;
+    padding: 1rem 1.25rem;
+    border-radius: 6px;
+    border-left: 4px solid var(--magenta-ink);
+    background: var(--paper);
+  }
+  .errors :global(a) {
+    color: var(--magenta-ink);
+    font-weight: 600;
+  }
+  .review {
+    display: grid;
+    gap: 0;
+    border-top: 1px solid var(--rule);
+  }
+  .review :global(div) {
+    display: grid;
+    grid-template-columns: minmax(7rem, 1fr) 3fr;
+    gap: 1rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .review :global(dt) {
+    font: 500 0.75rem/1.6 var(--font-mono);
+    color: var(--ink-soft);
+  }
+  .review :global(dd) {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .trap {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: flex-end;
+  }
+  .nav [hidden] {
+    display: none;
+  }
+  /* Without JS every step shows; the review step only makes sense with JS. */
+  .builder:not(.is-stepped) .review-step,
+  .builder:not(.is-stepped) .progress {
+    display: none;
+  }
+  .is-stepped fieldset[data-step]:not(.is-current) {
+    display: none;
+  }
+  .done {
+    padding: 1rem 0;
+  }
+</style>
+
+<script>
+  import { initBrief } from '../../motion/brief';
+  document.querySelectorAll<HTMLElement>('[data-brief]').forEach(initBrief);
+</script>

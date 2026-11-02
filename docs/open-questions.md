@@ -4,9 +4,9 @@ Gaps found during the inventory. Nothing below has been invented in the docs or 
 
 ## Decisions needed now
 1. **Design direction:** A (Lightbox), B (Edit Bay), or the hybrid? See `docs/design-directions.md`.
-2. **Stack:** default Astro + TS + Tailwind with MDX collections, or Astro + headless CMS? This depends on whether FBF staff will edit content themselves after launch. If so, which CMS (Sanity / Strapi / headless WordPress)?
-3. **Brief-builder endpoint:** email service, Formspree, or a small API? It needs a destination inbox (hello@fbf.studio?).
-4. **Preview URL / Dokploy host:** domain or subdomain for the deployed preview.
+2. ~~**Stack**~~ **Decided (2026-11-02):** staff will edit content themselves. Astro + TS + Tailwind, with a login-protected CMS. Proposed: Sanity, with the editing Studio embedded at `/admin`.
+3. ~~**Brief-builder endpoint**~~ **Decided:** the destination is a setting staff edit in the CMS (recipient inbox, plus an option to keep a copy of each brief in the CMS). Still needed: which inbox to use by default, and a sending service (e.g. Resend) verified for fbf.studio.
+4. ~~**Preview host**~~ **Decided:** deploy the preview on Vercel. The Dockerfile/Dokploy path is deferred. Still needed: the Vercel account or team to deploy under.
 
 ## Content & facts
 5. **Hero headline:** the current site's "We are …" rotating words are injected by JS and weren't captured. What were they, and should we keep them?

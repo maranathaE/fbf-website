@@ -1,0 +1,27 @@
+---
+import type { Img } from '../lib/types';
+
+interface Props {
+  img: Img;
+  sizes?: string;
+  class?: string;
+  /** Above the fold: load eagerly with high priority. */
+  priority?: boolean;
+  alt?: string;
+}
+const { img, sizes = '100vw', class: className, priority = false, alt } = Astro.props;
+---
+
+<img
+  src={img.src}
+  srcset={img.srcset}
+  sizes={sizes}
+  width={img.width}
+  height={img.height}
+  alt={alt ?? img.alt}
+  loading={priority ? 'eager' : 'lazy'}
+  decoding="async"
+  fetchpriority={priority ? 'high' : undefined}
+  class={className}
+  style={img.lqip ? `background-image:url(${img.lqip});background-size:cover` : undefined}
+/>

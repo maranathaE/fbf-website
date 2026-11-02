@@ -1,0 +1,90 @@
+---
+import '../styles/global.css';
+import displayFont from '@fontsource-variable/fraunces/files/fraunces-latin-soft-normal.woff2?url';
+import sansFont from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { getSettings } from '../lib/content';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  /** Extra JSON-LD for this page. */
+  schema?: Record<string, unknown>;
+  noindex?: boolean;
+}
+
+const { title, description, image, schema, noindex } = Astro.props;
+const settings = await getSettings();
+const siteName = 'Frame by Frame Studio';
+const fullTitle = title ? `${title} · ${siteName}` : `${siteName} · Animation & production in Addis Ababa`;
+const desc = description ?? settings.intro;
+const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', Astro.site);
+const ogImage = new URL(image ?? '/og.png', Astro.site);
+
+const org = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: siteName,
+  alternateName: 'FBF',
+  url: Astro.site?.href,
+  logo: new URL('/favicon.svg', Astro.site).href,
+  email: settings.contact.email,
+  address: { '@type': 'PostalAddress', streetAddress: settings.contact.address, addressLocality: 'Addis Ababa', addressCountry: 'ET' },
+  sameAs: settings.socials.map((s) => s.url),
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={desc} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="theme-color" content="#f2ede3" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#16130f" media="(prefers-color-scheme: dark)" />
+    <link rel="preload" href={displayFont} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={sansFont} as="font" type="font/woff2" crossorigin />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:title" content={title ?? siteName} />
+    <meta property="og:description" content={desc} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(org)} />
+    {schema && <script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />}
+    <slot name="head" />
+  </head>
+  <body class="min-h-dvh">
+    <a href="#main" class="sr-only-focusable fixed left-3 top-3 z-[60] rounded-md bg-ink px-4 py-2 text-paper">Skip to content</a>
+
+    <!-- Line boil: three slightly different pencil wobbles, cycled on twos. -->
+    <svg width="0" height="0" class="absolute" aria-hidden="true" focusable="false">
+      <filter id="boil-0"><feTurbulence baseFrequency="0.03" numOctaves="2" seed="1" /><feDisplacementMap in="SourceGraphic" scale="2.2" /></filter>
+      <filter id="boil-1"><feTurbulence baseFrequency="0.03" numOctaves="2" seed="7" /><feDisplacementMap in="SourceGraphic" scale="2.2" /></filter>
+      <filter id="boil-2"><feTurbulence baseFrequency="0.03" numOctaves="2" seed="13" /><feDisplacementMap in="SourceGraphic" scale="2.2" /></filter>
+    </svg>
+
+    <Header />
+    <main id="main" tabindex="-1" class="outline-none">
+      <slot />
+    </main>
+    <Footer />
+
+    <div class="cursor" aria-hidden="true" data-cursor><span data-cursor-label></span></div>
+    <p class="pencil-test-toast" role="status" aria-live="polite" data-pencil-toast></p>
+
+    <script>
+      import '../motion/site';
+    </script>
+  </body>
+</html>

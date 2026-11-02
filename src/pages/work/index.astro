@@ -1,0 +1,21 @@
+---
+import CtaBand from '../../components/CtaBand.astro';
+import WorkGrid from '../../components/work/WorkGrid.astro';
+import Base from '../../layouts/Base.astro';
+import { getProjects, getSettings } from '../../lib/content';
+
+const projects = await getProjects();
+const { workIntro } = await getSettings();
+---
+
+<Base title="Work" description={workIntro}>
+  <section class="wrap pb-16 pt-14 md:pt-20">
+    <p class="eyebrow">Work · {projects.length} projects</p>
+    <h1 class="mt-4 max-w-[14ch] text-display">Every frame, made with love.</h1>
+    <p class="mt-6 max-w-[52ch] text-lede text-ink-soft">{workIntro}</p>
+  </section>
+  <section class="wrap" aria-label="Projects">
+    <WorkGrid projects={projects} filters />
+  </section>
+  <CtaBand />
+</Base>

@@ -1,0 +1,40 @@
+---
+import AddisClock from '../../components/AddisClock.astro';
+import BriefBuilder from '../../components/contact/BriefBuilder.astro';
+import Base from '../../layouts/Base.astro';
+import { getSettings } from '../../lib/content';
+
+const { contact, socials } = await getSettings();
+---
+
+<Base title="Contact" description="Tell Frame by Frame about your project. Five short steps, about three minutes.">
+  <section class="wrap pb-10 pt-14 md:pt-20">
+    <p class="eyebrow">Start a project</p>
+    <h1 class="mt-4 max-w-[14ch] text-display">Let's make it <em class="text-teal-ink">move</em>.</h1>
+  </section>
+
+  <div class="wrap grid gap-12 pb-10 lg:grid-cols-[1fr_2fr]">
+    <aside class="space-y-8" aria-label="Contact details">
+      <p class="max-w-[36ch] text-lede text-ink-soft">
+        Build a brief in five short steps, or just write to us. Either way, a real person reads it.
+      </p>
+      <div class="space-y-2">
+        <h2 class="eyebrow">Email</h2>
+        <p><a class="link-pencil text-xl font-semibold" href={`mailto:${contact.email}`}>{contact.email}</a></p>
+        {contact.phone && <p><a class="link-pencil" href={`tel:${contact.phone.replace(/\s/g, '')}`}>{contact.phone}</a></p>}
+      </div>
+      <div class="space-y-2">
+        <h2 class="eyebrow">Studio</h2>
+        <address class="not-italic">{contact.address}</address>
+        <p class="text-ink-soft">{contact.hours}</p>
+        <p><a class="link-pencil font-semibold" href={contact.mapUrl} target="_blank" rel="noopener">Open in a map →</a></p>
+      </div>
+      <AddisClock hours={contact.hours} />
+      <ul class="flex flex-wrap gap-x-4 gap-y-1">
+        {socials.map((s) => <li><a class="link-pencil" href={s.url} target="_blank" rel="noopener">{s.label}</a></li>)}
+      </ul>
+    </aside>
+
+    <BriefBuilder />
+  </div>
+</Base>

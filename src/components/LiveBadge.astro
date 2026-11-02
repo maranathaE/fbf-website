@@ -1,0 +1,72 @@
+---
+// "Live now" tally light. Hidden until /api/live says the YouTube channel is streaming.
+// Add ?live=demo to any URL to preview it.
+import { getSettings } from '../lib/content';
+const { liveBadge } = await getSettings();
+---
+
+{
+  liveBadge && (
+    <a href="#" class="live" hidden data-live target="_blank" rel="noopener">
+      <span class="dot" aria-hidden="true" />
+      <span>Live</span>
+      <span class="sr-only" data-live-title>
+        now on YouTube
+      </span>
+    </a>
+  )
+}
+
+<style>
+  .live {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 2rem;
+    padding: 0.25rem 0.7rem 0.25rem 0.55rem;
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--paper);
+    font: 600 0.75rem/1 var(--font-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  .live[hidden] {
+    display: none;
+  }
+  .dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--tally);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--tally) 60%, transparent);
+    animation: tally 1.5s steps(6) infinite;
+  }
+  @keyframes tally {
+    0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--tally) 60%, transparent); }
+    100% { box-shadow: 0 0 0 8px transparent; }
+  }
+</style>
+
+<script>
+  import { ready } from '../motion/lifecycle';
+
+  ready(async () => {
+    const badge = document.querySelector<HTMLAnchorElement>('[data-live]');
+    if (!badge) return;
+    const demo = new URLSearchParams(location.search).get('live') === 'demo';
+    try {
+      const res = demo ? null : await fetch('/api/live', { headers: { accept: 'application/json' } });
+      const data = demo
+        ? { live: true, url: 'https://www.youtube.com/channel/UCUSZ0mcuSpyWL8AQ2wptZaQ', title: 'Demo stream' }
+        : await res!.json();
+      if (!data.live) return;
+      badge.href = data.url;
+      badge.querySelector('[data-live-title]')!.textContent = `now on YouTube: ${data.title}`;
+      badge.hidden = false;
+    } catch {
+      // No badge is the right failure mode.
+    }
+  });
+</script>

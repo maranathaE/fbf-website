@@ -1,0 +1,18 @@
+---
+// Where the brief form lands when JavaScript is off and the brief was sent.
+import Base from '../../layouts/Base.astro';
+import { getSettings } from '../../lib/content';
+
+const { brief } = await getSettings();
+---
+
+<Base title="Brief received" noindex>
+  <section class="wrap py-24">
+    <div class="sheet max-w-2xl p-8 md:p-12">
+      <p class="eyebrow">FRAME 05 / 05 · Sent</p>
+      <h1 class="mt-4 text-title">Brief received.</h1>
+      <p class="mt-4 text-lede text-ink-soft">{brief.successMessage}</p>
+      <a href="/work" class="btn btn-ghost mt-8">Look at the work meanwhile</a>
+    </div>
+  </section>
+</Base>

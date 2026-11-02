@@ -1,0 +1,142 @@
+---
+import Logo from './Logo.astro';
+import LiveBadge from './LiveBadge.astro';
+
+const nav = [
+  { href: '/work', label: 'Work' },
+  { href: '/services', label: 'Services' },
+  { href: '/about', label: 'About' },
+  { href: '/contact', label: 'Contact' },
+];
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isCurrent = (href: string) => path === href || path.startsWith(href + '/');
+---
+
+<header class="bar" data-header>
+  <div class="wrap flex h-(--header-h) items-center justify-between gap-4">
+    <a href="/" class="rounded-md no-underline" aria-label="Frame by Frame Studio, home" data-magnetic>
+      <Logo />
+    </a>
+
+    <nav aria-label="Main" class="hidden md:block">
+      <ul class="flex items-center gap-[clamp(0.75rem,2.4vw,1.75rem)] text-[0.9375rem]">
+        {
+          nav.map((item) => (
+            <li>
+              <a href={item.href} class="navlink" aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="flex items-center gap-3">
+      <LiveBadge />
+      <a href="/contact" class="btn btn-primary hidden sm:inline-flex" data-magnetic>Start a project</a>
+      <button
+        type="button"
+        class="menu-btn md:hidden"
+        aria-expanded="false"
+        aria-controls="mobile-nav"
+        data-menu-toggle
+      >
+        <span class="sr-only">Menu</span>
+        <span aria-hidden="true" class="burger"><i></i><i></i></span>
+      </button>
+    </div>
+  </div>
+
+  <nav id="mobile-nav" aria-label="Main" class="mobile md:hidden" hidden data-menu>
+    <ul class="wrap flex flex-col gap-1 pb-6 pt-2">
+      {
+        nav.map((item) => (
+          <li>
+            <a href={item.href} class="block py-2 font-display text-4xl" aria-current={isCurrent(item.href) ? 'page' : undefined}>
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+      <li class="pt-4"><a href="/contact" class="btn btn-primary">Start a project</a></li>
+    </ul>
+  </nav>
+</header>
+
+<style>
+  .bar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: color-mix(in srgb, var(--paper) 86%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    view-transition-name: header;
+  }
+  .navlink {
+    text-decoration: none;
+    padding-block: 0.5rem;
+  }
+  .navlink:hover,
+  .navlink[aria-current='page'] {
+    text-decoration: underline wavy var(--pencil) 1.5px;
+    text-underline-offset: 6px;
+  }
+  .menu-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1.5px currentColor;
+  }
+  @media (min-width: 48rem) {
+    .menu-btn {
+      display: none;
+    }
+  }
+  .burger {
+    display: grid;
+    gap: 6px;
+  }
+  .burger i {
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: currentColor;
+    transition: transform 0.125s steps(2);
+  }
+  [aria-expanded='true'] .burger i:first-child {
+    transform: translateY(4px) rotate(45deg);
+  }
+  [aria-expanded='true'] .burger i:last-child {
+    transform: translateY(-4px) rotate(-45deg);
+  }
+  .mobile a {
+    text-decoration: none;
+  }
+  .mobile a[aria-current='page'] {
+    color: var(--magenta-ink);
+  }
+</style>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const menu = document.querySelector<HTMLElement>('[data-menu]');
+  if (toggle && menu) {
+    const set = (open: boolean) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      menu.hidden = !open;
+      document.documentElement.classList.toggle('menu-open', open);
+    };
+    toggle.addEventListener('click', () => set(toggle.getAttribute('aria-expanded') !== 'true'));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !menu.hidden) {
+        set(false);
+        toggle.focus();
+      }
+    });
+    matchMedia('(min-width: 48rem)').addEventListener('change', (e) => e.matches && set(false));
+  }
+</script>

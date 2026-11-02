@@ -1,0 +1,22 @@
+---
+// Where the brief form lands when JavaScript is off and the brief couldn't be sent.
+import Base from '../../layouts/Base.astro';
+import { getSettings } from '../../lib/content';
+
+const { contact } = await getSettings();
+---
+
+<Base title="Brief not sent" noindex>
+  <section class="wrap py-24">
+    <div class="sheet max-w-2xl p-8 md:p-12">
+      <p class="eyebrow">Not sent</p>
+      <h1 class="mt-4 text-title">That didn't go through.</h1>
+      <p class="mt-4 text-lede text-ink-soft">
+        Something was missing from the brief, or our inbox is offline. Go back to check the form (your name, email and a
+        few lines about the project are needed), or write to us directly at
+        <a class="link-pencil text-ink" href={`mailto:${contact.email}`}>{contact.email}</a>.
+      </p>
+      <a href="/contact" class="btn btn-primary mt-8">Back to the form</a>
+    </div>
+  </section>
+</Base>

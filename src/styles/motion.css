@@ -1,0 +1,143 @@
+/* Site-wide motion: page transitions, cursor, pencil-test mode. */
+
+/* Frame-cut page transitions: the old page lifts off the pegs like a flipbook sheet,
+   in four held drawings (320 ms), revealing the next page underneath. */
+@view-transition {
+  navigation: auto;
+}
+::view-transition-group(root) {
+  animation-duration: 320ms;
+}
+::view-transition-old(root) {
+  transform-origin: 50% 0;
+  animation: sheet-lift 320ms steps(4, end) both;
+  z-index: 2;
+}
+::view-transition-new(root) {
+  animation: sheet-settle 320ms steps(4, end) both;
+}
+@keyframes sheet-lift {
+  to {
+    transform: perspective(1600px) rotateX(28deg) translateY(-14%);
+    opacity: 0;
+  }
+}
+@keyframes sheet-settle {
+  from {
+    opacity: 0.4;
+    filter: sepia(0.25);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* Cursor ring */
+.cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 70;
+  pointer-events: none;
+  display: none;
+}
+.has-cursor .cursor {
+  display: block;
+}
+.cursor::before {
+  content: '';
+  position: absolute;
+  left: -14px;
+  top: -14px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--pencil);
+  opacity: 0;
+  transition: transform 0.125s steps(3), opacity 0.125s steps(2), background-color 0.125s steps(2);
+}
+.cursor.is-on::before {
+  opacity: 0.7;
+}
+.cursor.is-hover::before {
+  transform: scale(1.5);
+  background: color-mix(in srgb, var(--onion) 40%, transparent);
+}
+.cursor.has-label::before {
+  transform: scale(2.6);
+  background: var(--magenta-ink);
+  border-color: var(--magenta-ink);
+  opacity: 1;
+}
+.cursor span {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  color: var(--on-magenta);
+  font: 600 0.75rem/1 var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Pencil test easter egg */
+.pencil-test img,
+.pencil-test video,
+.pencil-test iframe,
+.pencil-test canvas {
+  filter: grayscale(1) contrast(1.25) brightness(1.08);
+}
+.pencil-test h1,
+.pencil-test h2,
+.pencil-test .logo,
+.pencil-test img {
+  animation: var(--animate-boil);
+}
+.pencil-test body {
+  --magenta: #6b7280;
+  --magenta-ink: #3d3d3d;
+  --teal: #9ca3af;
+  --teal-ink: #3d3d3d;
+  --onion: #e5e7eb;
+  background-color: #f4f1e6;
+}
+.pencil-test body::before {
+  content: '';
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  z-index: 80;
+  width: 130px;
+  height: 14px;
+  translate: -50% 0;
+  background:
+    radial-gradient(circle at 7px 7px, #cfc8b8 6px, transparent 7px) 0 0 / 14px 14px no-repeat,
+    radial-gradient(circle, #cfc8b8 6px, transparent 7px) 50% 0 / 14px 14px no-repeat,
+    radial-gradient(circle at 7px 7px, #cfc8b8 6px, transparent 7px) 100% 0 / 14px 14px no-repeat;
+  pointer-events: none;
+}
+.pencil-test-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1.25rem;
+  z-index: 80;
+  translate: -50% 1rem;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  background: var(--ink);
+  color: var(--paper);
+  font: 500 0.8125rem/1.3 var(--font-mono);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.125s steps(2), translate 0.125s steps(2);
+}
+.pencil-test-toast.is-on {
+  opacity: 1;
+  translate: -50% 0;
+}
+.pencil-test-toast:empty {
+  display: none;
+}

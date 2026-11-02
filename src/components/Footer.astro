@@ -1,0 +1,51 @@
+---
+import { getSettings } from '../lib/content';
+import AddisClock from './AddisClock.astro';
+import Logo from './Logo.astro';
+
+const { contact, socials } = await getSettings();
+const year = new Date().getFullYear();
+---
+
+<footer class="mt-24 border-t border-rule">
+  <div class="wrap grid gap-10 py-14 md:grid-cols-[1.2fr_1fr_1fr]">
+    <div class="space-y-5">
+      <a href="/" class="inline-block no-underline" aria-label="Frame by Frame Studio, home"><Logo size="lg" /></a>
+      <p class="max-w-xs text-ink-soft">A creative studio in Addis Ababa. Animation, content production and live streaming.</p>
+      <AddisClock hours={contact.hours} />
+    </div>
+
+    <div class="space-y-3">
+      <h2 class="eyebrow !font-mono !text-xs">Visit</h2>
+      <address class="not-italic text-ink-soft">
+        <a class="link-pencil text-ink" href={contact.mapUrl} target="_blank" rel="noopener">{contact.address}</a>
+      </address>
+      <p class="text-ink-soft">{contact.hours}</p>
+      <p><a class="link-pencil text-lg font-semibold" href={`mailto:${contact.email}`}>{contact.email}</a></p>
+      {contact.phone && <p><a class="link-pencil" href={`tel:${contact.phone.replace(/\s/g, '')}`}>{contact.phone}</a></p>}
+    </div>
+
+    <div class="space-y-3">
+      <h2 class="eyebrow !font-mono !text-xs">Follow</h2>
+      <ul class="space-y-1.5">
+        {
+          socials.map((s) => (
+            <li>
+              <a class="link-pencil" href={s.url} target="_blank" rel="noopener me">
+                {s.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+  <div class="wrap flex flex-wrap justify-between gap-3 border-t border-rule py-5 font-mono text-xs text-ink-soft">
+    <p>© {year} Frame by Frame Studio</p>
+    <p>
+      <a href="/playground" class="link-pencil">Playground</a>
+      <span aria-hidden="true"> · </span>
+      <span>Drawn on twos, 12 drawings a second</span>
+    </p>
+  </div>
+</footer>

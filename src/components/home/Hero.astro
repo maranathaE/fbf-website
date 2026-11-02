@@ -1,0 +1,231 @@
+---
+import { getSettings } from '../../lib/content';
+
+const { heroTitle, heroLede } = await getSettings();
+// "*move*" → <em>move</em>; everything else is escaped.
+const escape = (s: string) => s.replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch]!);
+const title = escape(heroTitle).replace(/\*(.+?)\*/g, '<em>$1</em>');
+---
+
+<section class="hero" data-hero aria-labelledby="hero-title">
+  <div class="stage wrap">
+    <div class="copy">
+      <p class="eyebrow">Creative studio · Addis Ababa</p>
+      <h1 id="hero-title" class="text-display" set:html={title} />
+      <p class="lede">{heroLede}</p>
+      <div class="flex flex-wrap gap-3">
+        <a class="btn btn-primary" href="#reel" data-magnetic>
+          <svg width="12" height="14" viewBox="0 0 12 14" aria-hidden="true"><path d="M0 0l12 7-12 7z" fill="currentColor" /></svg>
+          Play reel
+        </a>
+        <a class="btn btn-ghost" href="/work" data-magnetic>See the work</a>
+      </div>
+    </div>
+
+    <div class="desk">
+      <span class="note margin-note" aria-hidden="true">squash ↓ stretch ↑</span>
+      <div
+        class="sheet flip"
+        tabindex="0"
+        role="slider"
+        aria-label="Flipbook of the Frame by Frame logo: a bouncing ball. Scroll, drag, or use the arrow keys to flip through the drawings."
+        aria-valuemin="1"
+        aria-valuemax="120"
+        aria-valuenow="1"
+        data-flipbook
+        data-cursor="Drag"
+      >
+        <div class="pegs" aria-hidden="true"><span></span><span></span><span></span></div>
+        <canvas aria-hidden="true" data-flip-canvas></canvas>
+        <div class="hud" aria-hidden="true">
+          <span>SC 01 · BOUNCE · 12 fps</span>
+          <span class="counter" data-flip-counter>FRAME <b>001</b> / 120</span>
+        </div>
+        <div class="dope" aria-hidden="true" data-flip-dope></div>
+      </div>
+      <p class="hint" aria-hidden="true">Scroll, drag or <kbd>←</kbd> <kbd>→</kbd> to flip</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    height: 240vh;
+    /* slide under the sticky header so the stage fills the viewport */
+    margin-top: calc(-1 * var(--header-h));
+  }
+  .stage {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    align-items: center;
+    gap: clamp(1.25rem, 4vw, 4rem);
+    padding-top: calc(var(--header-h) + 0.5rem);
+    padding-bottom: 2rem;
+  }
+  h1 {
+    margin: 1.1rem 0 1.25rem;
+    font-variation-settings: 'SOFT' 100;
+  }
+  h1 :global(em) {
+    color: var(--teal-ink);
+  }
+  .lede {
+    font-size: var(--text-lede);
+    line-height: 1.55;
+    max-width: 34ch;
+    color: var(--ink-soft);
+    margin: 0 0 1.75rem;
+  }
+  .desk {
+    position: relative;
+  }
+  .flip {
+    position: relative;
+    padding: 2.1rem 1.1rem 0.9rem;
+    touch-action: pan-y;
+    cursor: ew-resize;
+    user-select: none;
+  }
+  .pegs {
+    position: absolute;
+    top: 0.65rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 2.9rem;
+    align-items: center;
+  }
+  .pegs span {
+    width: 26px;
+    height: 9px;
+    border-radius: 9px;
+    background: var(--paper);
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.25);
+  }
+  .pegs span:nth-child(2) {
+    width: 13px;
+    height: 13px;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+  }
+  .hud {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: 0.6rem;
+    font: 400 0.75rem/1 var(--font-mono);
+    color: var(--ink-soft);
+  }
+  .counter {
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: 0.06em;
+  }
+  .counter :global(b) {
+    color: var(--magenta-ink);
+  }
+  .dope {
+    display: grid;
+    grid-template-columns: repeat(120, 1fr);
+    gap: 1px;
+    margin-top: 0.6rem;
+    height: 18px;
+  }
+  .dope :global(button) {
+    all: unset;
+    cursor: pointer;
+    background: var(--paper-shade);
+    border-radius: 1px;
+  }
+  .dope :global(button.key) {
+    background: color-mix(in srgb, var(--pencil) 30%, var(--paper-shade));
+  }
+  .dope :global(button[aria-current='true']) {
+    background: var(--magenta);
+  }
+  .hint {
+    position: absolute;
+    left: 1.1rem;
+    bottom: -1.9rem;
+    font: 400 0.75rem/1 var(--font-mono);
+    color: var(--ink-soft);
+  }
+  .hint kbd {
+    font: inherit;
+    padding: 1px 5px;
+    border: 1px solid currentColor;
+    border-radius: 3px;
+  }
+  .margin-note {
+    position: absolute;
+    right: -0.4rem;
+    top: -1.6rem;
+    font-size: 0.95rem;
+    transform: rotate(-3deg);
+  }
+  @media (max-width: 860px) {
+    .hero {
+      height: 200vh;
+    }
+    .stage {
+      grid-template-columns: 1fr;
+      align-content: start;
+      gap: 1.4rem;
+      padding-top: calc(var(--header-h) + 1rem);
+    }
+    h1 {
+      margin: 0.75rem 0;
+    }
+    .lede {
+      margin-bottom: 1.1rem;
+      font-size: 0.95rem;
+    }
+    .flip {
+      padding: 1.75rem 0.6rem 0.6rem;
+    }
+    .dope {
+      height: 14px;
+    }
+    .margin-note {
+      display: none;
+    }
+  }
+  @media (max-height: 640px) and (max-width: 860px) {
+    .lede {
+      display: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero {
+      height: auto;
+    }
+    .stage {
+      position: relative;
+      height: auto;
+      min-height: 100svh;
+    }
+  }
+</style>
+
+<script>
+  import { createFlipbook } from '../../motion/flipbook';
+
+  const hero = document.querySelector<HTMLElement>('[data-hero]');
+  const sheet = hero?.querySelector<HTMLElement>('[data-flipbook]');
+  if (hero && sheet) {
+    createFlipbook({
+      sheet,
+      canvas: sheet.querySelector('[data-flip-canvas]')!,
+      counter: sheet.querySelector('[data-flip-counter]')!,
+      dope: sheet.querySelector('[data-flip-dope]')!,
+      scroller: hero,
+    });
+  }
+</script>

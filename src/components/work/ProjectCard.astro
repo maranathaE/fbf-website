@@ -1,0 +1,116 @@
+---
+import type { Project } from '../../lib/types';
+import Picture from '../Picture.astro';
+
+interface Props {
+  project: Project;
+  sizes?: string;
+}
+const { project: p, sizes = '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw' } = Astro.props;
+const serviceLabel = { animation: 'Animation', production: 'Production', live: 'Live' };
+// Hover flips through the project's own frames at 12 fps when there is no video loop.
+const frames = p.gallery.slice(0, 12).map((g) => g.srcset.split(', ')[0].split(' ')[0]);
+---
+
+<li class="card-item" data-services={p.services.join(' ')} data-flip-id={p.slug}>
+  <a
+    href={`/work/${p.slug}`}
+    class="card"
+    data-card
+    data-cursor="View"
+    data-frames={p.loop ? undefined : JSON.stringify(frames)}
+  >
+    <div class="media">
+      <Picture img={p.cover} sizes={sizes} class="cover" />
+      {
+        p.loop && (
+          <video class="loop" muted loop playsinline preload="none" aria-hidden="true" data-loop>
+            {p.loop.webm && <source src={p.loop.webm} type="video/webm" />}
+            {p.loop.mp4 && <source src={p.loop.mp4} type="video/mp4" />}
+          </video>
+        )
+      }
+      <canvas class="flick" aria-hidden="true" data-flick></canvas>
+      <span class="fc" aria-hidden="true" data-fc></span>
+    </div>
+    <div class="meta">
+      <h3 class="title">{p.title}</h3>
+      <p class="sub">
+        {p.clientLabel}
+        <span aria-hidden="true"> · </span>
+        {p.services.map((s) => serviceLabel[s]).join(', ')}
+      </p>
+    </div>
+  </a>
+</li>
+
+<style>
+  .card {
+    display: block;
+    padding: 0.6rem 0.6rem 0.9rem;
+    border-radius: 6px;
+    background: var(--sheet);
+    box-shadow: var(--shadow-sheet);
+    text-decoration: none;
+    transition: transform 0.25s steps(3), box-shadow 0.25s steps(3);
+    height: 100%;
+  }
+  .card:hover,
+  .card:focus-visible {
+    transform: rotate(-0.8deg) translateY(-4px);
+  }
+  .media {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 3px;
+    background: var(--paper-shade);
+  }
+  .media :global(.cover),
+  .loop,
+  .flick {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .loop,
+  .flick {
+    opacity: 0;
+  }
+  .card.is-playing .loop,
+  .card.is-playing .flick {
+    opacity: 1;
+  }
+  .fc {
+    position: absolute;
+    right: 0.5rem;
+    bottom: 0.5rem;
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    background: rgb(22 19 15 / 0.75);
+    color: #f2ede3;
+    font: 600 0.6875rem/1 var(--font-mono);
+    letter-spacing: 0.06em;
+    opacity: 0;
+  }
+  .card.is-playing .fc:not(:empty) {
+    opacity: 1;
+  }
+  .meta {
+    padding: 0.75rem 0.2rem 0;
+  }
+  .title {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 1.0625rem;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+  }
+  .sub {
+    margin-top: 0.25rem;
+    font: 400 0.75rem/1.4 var(--font-mono);
+    color: var(--ink-soft);
+  }
+</style>

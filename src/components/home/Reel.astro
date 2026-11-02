@@ -1,0 +1,185 @@
+---
+import { getProjects, getSettings } from '../../lib/content';
+import Picture from '../Picture.astro';
+
+const { reel } = await getSettings();
+const projects = await getProjects();
+
+// A real reel (with chapter timestamps) when the studio has uploaded one;
+// until then, the featured projects' own films, played back to back.
+const mode = reel.youtubeId && reel.chapters.length ? 'reel' : 'playlist';
+const seen = new Set<string>();
+const chapters =
+  mode === 'reel'
+    ? reel.chapters.map((c) => ({ start: c.start, label: c.label, videoId: reel.youtubeId!, slug: c.project?.slug }))
+    : projects
+        .filter((p) => p.featured && p.youtubeId && !seen.has(p.youtubeId) && seen.add(p.youtubeId))
+        .map((p) => ({ start: 0, label: p.title, videoId: p.youtubeId!, slug: p.slug }));
+const covers = new Map(projects.map((p) => [p.slug, p.cover]));
+const poster = covers.get(chapters[0]?.slug ?? '') ?? projects[0].cover;
+const tc = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+---
+
+{
+  chapters.length > 0 && (
+    <section id="reel" class="wrap scroll-mt-20 py-20 md:py-28" aria-labelledby="reel-title" data-reel>
+      <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p class="eyebrow">{mode === 'reel' ? 'Showreel' : 'The reel, chapter by chapter'}</p>
+          <h2 id="reel-title" class="mt-3 text-title">
+            Press play. <span class="note">Pick a chapter.</span>
+          </h2>
+        </div>
+        <p class="font-mono text-xs text-ink-soft" data-reel-time aria-hidden="true">0:00 / 0:00</p>
+      </div>
+
+      <div class="sheet p-2.5 md:p-3.5">
+        <div class="screen" data-reel-screen>
+          <Picture img={poster} sizes="(min-width: 1440px) 1380px, 100vw" class="poster" alt="" />
+          <div class="mount" data-reel-mount />
+          <button type="button" class="play" data-reel-play data-cursor="Play" data-magnetic="0.2">
+            <span class="disc" aria-hidden="true">
+              <svg width="22" height="26" viewBox="0 0 12 14"><path d="M0 0l12 7-12 7z" fill="currentColor" /></svg>
+            </span>
+            <span class="sr-only">Play the reel (loads YouTube)</span>
+          </button>
+          <span class="slate" aria-hidden="true">REEL · {String(chapters.length).padStart(2, '0')} CH</span>
+        </div>
+
+        <ol class="chapters" aria-label="Chapters">
+          {chapters.map((c, i) => (
+            <li>
+              <button type="button" class="chapter" data-chapter={i}>
+                <span class="bar" aria-hidden="true"><i data-fill /></span>
+                <span class="num" aria-hidden="true">
+                  CH {String(i + 1).padStart(2, '0')}
+                  {mode === 'reel' && <> · {tc(c.start)}</>}
+                </span>
+                <span class="label">{c.label}</span>
+              </button>
+            </li>
+          ))}
+        </ol>
+      </div>
+      <p class="sr-only" aria-live="polite" data-reel-now />
+      <script type="application/json" data-reel-config set:html={JSON.stringify({ mode, chapters })} />
+    </section>
+  )
+}
+
+<style>
+  .screen {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 3px;
+    background: #0d0b09;
+  }
+  .screen :global(.poster) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.85;
+  }
+  .mount,
+  .screen :global(iframe) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .play {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(transparent 40%, rgb(13 11 9 / 0.45));
+  }
+  .disc {
+    display: grid;
+    place-items: center;
+    width: clamp(4.5rem, 10vw, 7rem);
+    aspect-ratio: 1;
+    padding-left: 0.35rem;
+    border-radius: 50%;
+    background: var(--magenta-ink);
+    color: var(--on-magenta);
+    box-shadow: 0 0 0 0.6rem rgb(245 9 121 / 0.18);
+  }
+  .is-live .play,
+  .is-live :global(.poster),
+  .is-live .slate {
+    display: none;
+  }
+  .is-loading .disc {
+    animation: var(--animate-boil);
+  }
+  .slate {
+    position: absolute;
+    left: 0.9rem;
+    top: 0.8rem;
+    font: 600 0.75rem/1 var(--font-mono);
+    letter-spacing: 0.1em;
+    color: #f2ede3;
+  }
+  .chapters {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(10rem, 1fr);
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    padding-bottom: 0.25rem;
+  }
+  .chapter {
+    display: grid;
+    gap: 0.35rem;
+    width: 100%;
+    min-height: 4.5rem;
+    padding: 0.5rem 0.6rem 0.6rem;
+    border-radius: 4px;
+    text-align: left;
+    background: var(--paper);
+    transition: background-color 0.125s steps(2);
+  }
+  .chapter:hover {
+    background: var(--paper-shade);
+  }
+  .chapter[aria-current='true'] {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .bar {
+    display: block;
+    height: 3px;
+    background: var(--rule);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .bar i {
+    display: block;
+    height: 100%;
+    background: var(--magenta);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+  }
+  .num {
+    font: 600 0.6875rem/1 var(--font-mono);
+    letter-spacing: 0.08em;
+    opacity: 0.75;
+  }
+  .label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+</style>
+
+<script>
+  import { initReel } from '../../motion/reel';
+  document.querySelectorAll<HTMLElement>('[data-reel]').forEach((el) => initReel(el));
+</script>
