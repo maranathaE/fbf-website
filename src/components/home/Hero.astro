@@ -180,9 +180,13 @@ const title = escape(heroTitle).replace(/\*(.+?)\*/g, '<em>$1</em>');
     }
     .stage {
       grid-template-columns: 1fr;
-      align-content: start;
+      grid-template-rows: auto 1fr;
       gap: 1.4rem;
       padding-top: calc(var(--header-h) + 1rem);
+    }
+    /* pinned to the bottom so the headline reflowing on font swap can't shift it */
+    .desk {
+      align-self: end;
     }
     h1 {
       margin: 0.75rem 0;
