@@ -7,7 +7,7 @@ const { title = 'Got a story that needs to move?' } = Astro.props;
 
 <section class="wrap py-16" aria-labelledby="cta-title">
   <div class="sheet relative overflow-hidden px-6 py-12 md:px-14 md:py-16">
-    <div class="ball" aria-hidden="true"></div>
+    <div class="bounce" aria-hidden="true"><div class="ball"></div></div>
     <p class="eyebrow">Start a project</p>
     <h2 id="cta-title" class="mt-3 max-w-[16ch] text-title">{title}</h2>
     <p class="mt-4 max-w-[46ch] text-ink-soft">
@@ -18,18 +18,21 @@ const { title = 'Got a story that needs to move?' } = Astro.props;
 </section>
 
 <style>
-  .ball {
+  .bounce {
     position: absolute;
     right: clamp(1.5rem, 8vw, 7rem);
     bottom: 2.5rem;
     width: clamp(4rem, 10vw, 8rem);
+  }
+  .ball {
     aspect-ratio: 1;
     border-radius: 50%;
     background: var(--teal);
     transform-origin: 50% 100%;
     animation: cta-bounce 1.4s steps(14) infinite;
   }
-  .ball::after {
+  /* the floor: a sibling of the ball, so it stays put while the ball squashes and leaps */
+  .bounce::after {
     content: '';
     position: absolute;
     left: -15%;
@@ -45,7 +48,7 @@ const { title = 'Got a story that needs to move?' } = Astro.props;
     88% { transform: translateY(-12%) scale(0.9, 1.1); }
   }
   @media (max-width: 640px) {
-    .ball {
+    .bounce {
       display: none;
     }
   }
